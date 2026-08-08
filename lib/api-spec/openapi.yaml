@@ -54,31 +54,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/teacher-login:
-    post:
-      operationId: teacherLogin
-      tags: [auth]
-      summary: Log in as a teacher with an access code
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TeacherLoginInput"
-      responses:
-        "200":
-          description: Successful teacher login
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthUser"
-        "401":
-          description: Invalid access code
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
   /auth/logout:
     post:
       operationId: logout
@@ -157,14 +132,6 @@ components:
           type: string
           minLength: 1
 
-    TeacherLoginInput:
-      type: object
-      required: [code]
-      properties:
-        code:
-          type: string
-          minLength: 1
-
     AuthUser:
       type: object
       required: [id, username]
@@ -173,10 +140,6 @@ components:
           type: integer
         username:
           type: string
-        role:
-          type: string
-          enum: [member, teacher]
-          description: Account role. Defaults to member when omitted.
 
     DashboardData:
       type: object

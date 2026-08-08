@@ -29,6 +29,7 @@ Example local credentials used in Cloud setup:
 - Apply schema after install: `DATABASE_URL=... pnpm --filter @workspace/db run push`
 
 Also required for the API: `SESSION_SECRET` (any non-empty dev string).
+Optional Google Sheet overrides: `GOOGLE_SHEET_ID` and `MEMBER_SHEET_TABS` (comma-separated, defaults to `11/12,10`).
 
 ### Running services locally
 
@@ -45,6 +46,8 @@ Health check: `GET /api/healthz` → `{"status":"ok"}`.
 ### Google Sheets / login (Replit-only)
 
 Member login validates against Google Sheets via `@replit/connectors-sdk` (`artifacts/api-server/src/lib/sheets.ts`). Outside a Replit environment (no `REPL_IDENTITY` / connector token), login returns **500** from the API and the UI shows a generic sign-in error. Full authenticated E2E (login → dashboard) requires Replit with the `google-sheet` integration authorized, or running on Replit and using Desktop-pane login there.
+
+To replace the source sheet later, upload/copy the new Google Sheet, authorize it with the Replit `google-sheet` integration, set `GOOGLE_SHEET_ID` to the ID from the URL, and update `MEMBER_SHEET_TABS` if the tab names differ.
 
 ### Lint / test / build
 

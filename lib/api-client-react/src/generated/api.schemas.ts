@@ -16,16 +16,9 @@ export interface LoginInput {
   password: string;
 }
 
-export interface TeacherLoginInput {
-  /** @minLength 1 */
-  code: string;
-}
-
 export interface AuthUser {
   id: number;
   username: string;
-  /** Account role. Defaults to member when omitted. */
-  role?: "member" | "teacher";
 }
 
 export interface MonthlyHours {

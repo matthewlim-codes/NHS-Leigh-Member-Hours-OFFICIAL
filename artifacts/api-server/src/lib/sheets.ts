@@ -1,11 +1,14 @@
 import { ReplitConnectors } from "@replit/connectors-sdk";
 
 // --- SPREADSHEET CONFIG ------------------------------------------------------
-// To connect a different Google Sheet, update SPREADSHEET_ID and MEMBER_SHEET_TABS below.
-// SPREADSHEET_ID: the long ID in the spreadsheet URL between /d/ and /edit
-// MEMBER_SHEET_TABS: the exact tab names containing member names and hours
-const SPREADSHEET_ID = "1NAfPUYygYC_AuIVHrguiGO_7sixenv3P2JREIawRKrk";
-const MEMBER_SHEET_TABS = ["11/12", "10"];
+// To replace the Google Sheet, set GOOGLE_SHEET_ID to the long ID in the sheet
+// URL between /d/ and /edit. If the member data lives on different tabs, set
+// MEMBER_SHEET_TABS to a comma-separated list, e.g. "11/12,10".
+const DEFAULT_SPREADSHEET_ID = "1NAfPUYygYC_AuIVHrguiGO_7sixenv3P2JREIawRKrk";
+const DEFAULT_MEMBER_SHEET_TABS = ["11/12", "10"];
+
+const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID?.trim() || DEFAULT_SPREADSHEET_ID;
+const MEMBER_SHEET_TABS = parseSheetTabs(process.env.MEMBER_SHEET_TABS);
 // ----------------------------------------------------------------------------
 
 const NAME_HEADER = "name";
@@ -153,6 +156,15 @@ export function generateUsername(fullName: string): string {
 
 export function getStudentIdTemporaryPassword(studentId: string): string {
   return normalizeStudentId(studentId);
+}
+
+function parseSheetTabs(rawTabs: string | undefined): string[] {
+  const tabs = rawTabs
+    ?.split(",")
+    .map((tab) => tab.trim())
+    .filter(Boolean);
+
+  return tabs && tabs.length > 0 ? tabs : DEFAULT_MEMBER_SHEET_TABS;
 }
 
 function quoteSheetName(sheetName: string): string {

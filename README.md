@@ -32,9 +32,12 @@ This web app gives NHS members a simple way to:
 
 ## Setup
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm --filter @workspace/api-server run dev
+pnpm --filter @workspace/member-portal run dev
 ```
+
+To replace the Google Sheet later, copy/upload the new sheet, authorize it with the Replit Google Sheets integration, then set `GOOGLE_SHEET_ID` and update `MEMBER_SHEET_TABS` if the tab names differ.
 
 ## Why I built this
 NHS hour tracking was previously handled manually, which made it harder for members to check progress or access records. This app centralizes that process into one accessible portal.

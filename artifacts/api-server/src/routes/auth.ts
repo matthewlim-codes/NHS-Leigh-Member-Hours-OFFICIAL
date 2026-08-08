@@ -8,23 +8,6 @@ import { getMemberFromSheet, getStudentIdTemporaryPassword } from "../lib/sheets
 
 const router: IRouter = Router();
 
-/** Fixed sentinel id for teacher sessions (not in members table). */
-const TEACHER_USER_ID = -1;
-const TEACHER_USERNAME = "Teacher";
-const TEACHER_ACCESS_CODE = "teacher";
-
-function authUserPayload(user: {
-  id: number;
-  username: string;
-  role?: "member" | "teacher";
-}) {
-  return LoginResponse.parse({
-    id: user.id,
-    username: user.username,
-    role: user.role ?? "member",
-  });
-}
-
 router.post("/auth/login", async (req, res): Promise<void> => {
   const parsed = LoginBody.safeParse(req.body);
   if (!parsed.success) {
@@ -53,14 +36,12 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   if (existingMember) {
     req.session.userId = existingMember.id;
     req.session.username = existingMember.username;
-    req.session.role = "member";
 
     req.log.info({ username: existingMember.username }, "User logged in");
 
-    res.json(authUserPayload({
+    res.json(LoginResponse.parse({
       id: existingMember.id,
       username: existingMember.username,
-      role: "member",
     }));
     return;
   }
@@ -74,39 +55,12 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
   req.session.userId = newMember.id;
   req.session.username = newMember.username;
-  req.session.role = "member";
 
   req.log.info({ username: newMember.username }, "New member account provisioned and logged in");
 
-  res.json(authUserPayload({
+  res.json(LoginResponse.parse({
     id: newMember.id,
     username: newMember.username,
-    role: "member",
-  }));
-});
-
-router.post("/auth/teacher-login", async (req, res): Promise<void> => {
-  const code = typeof req.body?.code === "string" ? req.body.code.trim() : "";
-  if (!code) {
-    res.status(400).json({ error: "Access code is required" });
-    return;
-  }
-
-  if (code.toLowerCase() !== TEACHER_ACCESS_CODE) {
-    res.status(401).json({ error: "Invalid teacher access code" });
-    return;
-  }
-
-  req.session.userId = TEACHER_USER_ID;
-  req.session.username = TEACHER_USERNAME;
-  req.session.role = "teacher";
-
-  req.log.info({ username: TEACHER_USERNAME }, "Teacher logged in");
-
-  res.json(authUserPayload({
-    id: TEACHER_USER_ID,
-    username: TEACHER_USERNAME,
-    role: "teacher",
   }));
 });
 
@@ -120,17 +74,8 @@ router.post("/auth/logout", async (req, res): Promise<void> => {
 });
 
 router.get("/auth/me", async (req, res): Promise<void> => {
-  if (!req.session.userId || !req.session.username) {
+  if (!req.session.userId) {
     res.status(401).json({ error: "Not authenticated" });
-    return;
-  }
-
-  if (req.session.role === "teacher" || req.session.userId === TEACHER_USER_ID) {
-    res.json(GetMeResponse.parse({
-      id: TEACHER_USER_ID,
-      username: req.session.username || TEACHER_USERNAME,
-      role: "teacher",
-    }));
     return;
   }
 
@@ -148,7 +93,6 @@ router.get("/auth/me", async (req, res): Promise<void> => {
   res.json(GetMeResponse.parse({
     id: member.id,
     username: member.username,
-    role: "member",
   }));
 });
 

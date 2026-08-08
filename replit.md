@@ -14,7 +14,8 @@ A private member portal for an NHS-style community club. Members log in to see t
 - `pnpm --filter @workspace/api-server run cleanup:stale-members` — delete DB accounts that are no longer in the current Google Sheet
 - Required env: `DATABASE_URL` — Postgres connection string
 - Required env: `SESSION_SECRET` — secret for express-session
-- Optional env: `EVEROS_API_KEY` — EverOS Cloud API key for TutorOS tutoring memory (`pip install -r lib/everos/requirements.txt` for the Python SDK)
+- Optional env: `GOOGLE_SHEET_ID` — replace the default member-hours Google Sheet without code changes
+- Optional env: `MEMBER_SHEET_TABS` — comma-separated member data tabs, defaults to `11/12,10`
 
 ## Stack
 
@@ -34,10 +35,6 @@ A private member portal for an NHS-style community club. Members log in to see t
 - `lib/db/src/schema/members.ts` — members table schema
 - `artifacts/api-server/src/routes/auth.ts` — login, logout, me
 - `artifacts/api-server/src/routes/dashboard.ts` — member dashboard data, goals, and remaining-hour calculations
-- `artifacts/api-server/src/routes/tutoring.ts` — EverOS-backed tutoring memory (prep context + session record)
-- `artifacts/api-server/src/lib/everos-client.ts` — EverOS Cloud HTTP client
-- `artifacts/api-server/src/lib/tutor-memory.ts` — TutorOS memory helpers (record + search)
-- `lib/everos/tutor_memory.py` — Python SDK mirror of tutoring memory (AI Tutor cookbook pattern)
 - `artifacts/api-server/src/lib/sheets.ts` — Google Sheets helper + username/password generation
 - `artifacts/member-portal/src/pages/` — login and dashboard pages
 
@@ -51,31 +48,27 @@ A private member portal for an NHS-style community club. Members log in to see t
 
 ## Product
 
-Members visit the portal, enter their username (e.g. `Matthew-Lim`) and their Student ID as their password. They land on **TutorOS** — an AI copilot loop for peer tutors:
+Members visit the portal, enter their username (e.g. `Matthew-Lim`) and their Student ID as their password. They then see their name, form/dues status, annual and semester hour progress, and a month-by-month HW Center/Tutorial breakdown from the Google Sheet. The sheet owner updates hours in Google Sheets and members see the latest data on their next visit.
 
-**PREP → SESSION → VERIFY → REMEMBER**
+## Replacing the Google Sheet
 
-- Start Session generates an **LLM prep brief** (Butterbase AI / Claude-class coaching) grounded in tutee memory
-- Timer + 3-tap rubric (no in-session AI listening)
-- Student verify check-in (~30s) scores a learning moment
-- Existing NHS hours dashboard remains at `/dashboard`
+To switch to a newly uploaded/copied Google Sheet, authorize the Replit `google-sheet` integration for that sheet, then set:
 
-Butterbase app: `app_tsc2mvlq21yo` (`tutoros-leigh-nhs`).
+- `GOOGLE_SHEET_ID` to the sheet ID from the URL (`https://docs.google.com/spreadsheets/d/<GOOGLE_SHEET_ID>/edit`)
+- `MEMBER_SHEET_TABS` to the comma-separated tabs containing member rows, for example `11/12,10`
+
+The sheet parser scans the first few rows for headers, so the tabs should include `STUDENT ID`, `NAME`, and `TOTAL HOURS`. Optional columns include `GRADE`, `INFO FORM`, `CLUB DUES`, `SEM 1 HOURS`, and monthly HW Center/Tutorial pairs.
 
 ## User preferences
 
-- TutorOS UI follows the Khan Academy–style Figma mobile templates (blue primary `#1865F2`, bottom nav, list layouts, rounded CTAs) while implementing the Prep/Verify product — not a curriculum browser.
-- No session audio/transcripts; student demonstrates understanding in Verify.
-- Officer Command is out of scope for now (removed from MVP UI).
-- Prep briefs should read like ChatGPT/Claude coaching — not static templates.
+_Populate as you build — explicit user instructions worth remembering across sessions._
 
 ## Gotchas
 
 - Always run `pnpm run typecheck:libs` before `pnpm --filter @workspace/api-server run typecheck` after changing `lib/db` schema — the composite lib must be rebuilt first.
 - The Google Sheets integration uses Replit's connector proxy (`@replit/connectors-sdk`). If it returns errors, the connection may need to be re-authorized via the integrations panel.
-- The spreadsheet ID and member data tabs are configured in `artifacts/api-server/src/lib/sheets.ts`. The current sheet reads the `11/12` and `10` tabs, finds columns by header across the first few header rows, and expects `STUDENT ID`, `NAME`, and `TOTAL HOURS` columns.
+- The spreadsheet ID and member data tabs can be replaced with `GOOGLE_SHEET_ID` and `MEMBER_SHEET_TABS`. The current default reads the `11/12` and `10` tabs, finds columns by header across the first few header rows, and expects `STUDENT ID`, `NAME`, and `TOTAL HOURS` columns.
 - Hour goals are calculated in `artifacts/api-server/src/routes/dashboard.ts`: grade 10 requires 7 annual hours; grades 11/12 require 20 annual hours, split as 9 semester 1 hours and 11 semester 2 hours.
-- After deploying TutorOS API changes, republish/restart the **API Server** artifact (port 8080). A frontend-only publish leaves `/api/tutoros/*` returning Express `Cannot GET/POST` 404s. The member portal falls back to localStorage demo mode when those routes are missing.
 
 ## Pointers
 
