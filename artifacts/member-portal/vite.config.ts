@@ -66,22 +66,10 @@ export default defineConfig({
     fs: {
       strict: true,
     },
-    proxy: {
-      "/api": {
-        target: process.env.API_PROXY_TARGET || "http://127.0.0.1:8080",
-        changeOrigin: true,
-      },
-    },
   },
   preview: {
     port,
     host: "0.0.0.0",
     allowedHosts: true,
-    proxy: {
-      "/api": {
-        target: process.env.API_PROXY_TARGET || "http://127.0.0.1:8080",
-        changeOrigin: true,
-      },
-    },
   },
 });

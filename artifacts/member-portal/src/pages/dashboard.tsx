@@ -3,8 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { LogOut, AlertCircle, CheckCircle2, CircleDollarSign, ClipboardList, Clock, XCircle, GraduationCap } from "lucide-react";
-import { Link } from "wouter";
+import { LogOut, AlertCircle, CheckCircle2, CircleDollarSign, ClipboardList, Clock, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
@@ -83,30 +82,17 @@ export default function DashboardPage() {
           <h1 className="font-bold text-lg text-foreground flex items-center gap-2">
             Leigh NHS
           </h1>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <Link href="/tutoros" data-testid="link-tutoros">
-                <GraduationCap className="w-4 h-4 mr-2" />
-                TutorOS
-              </Link>
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleLogout}
-              disabled={logoutMutation.isPending}
-              className="text-muted-foreground hover:text-foreground"
-              data-testid="button-logout"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign out
-            </Button>
-          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleLogout}
+            disabled={logoutMutation.isPending}
+            className="text-muted-foreground hover:text-foreground"
+            data-testid="button-logout"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign out
+          </Button>
         </div>
       </header>
 
@@ -121,27 +107,6 @@ export default function DashboardPage() {
           </Alert>
         ) : (
           <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-5">
-            <Link
-              href="/tutoros"
-              className="block rounded-2xl border border-primary/20 bg-primary text-primary-foreground p-5 shadow-md hover:opacity-95 transition"
-              data-testid="card-open-tutoros"
-            >
-              <div className="flex items-start gap-3">
-                <div className="rounded-xl bg-white/15 p-2.5">
-                  <GraduationCap className="w-6 h-6" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-[0.18em] text-primary-foreground/80 font-semibold">
-                    New
-                  </p>
-                  <h3 className="mt-1 text-2xl font-display font-bold">Open TutorOS</h3>
-                  <p className="mt-1 text-sm text-primary-foreground/85">
-                    Start Session → prep from memory → verify learning in 30 seconds. Hours dashboard stays here.
-                  </p>
-                </div>
-              </div>
-            </Link>
-
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground" data-testid="text-welcome-greeting">
