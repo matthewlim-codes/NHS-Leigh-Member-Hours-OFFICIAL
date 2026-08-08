@@ -49,16 +49,16 @@ export default function DashboardPage() {
     if (!dashboard) return;
 
     setSelectedMonth((currentMonth) => {
-      if (dashboard.monthlyHours.some((month) => month.month === currentMonth)) {
+      if (dashboard.monthlyHours?.some((month) => month.month === currentMonth)) {
         return currentMonth;
       }
 
-      return dashboard.monthlyHours.find((month) => month.hasData)?.month ?? "October";
+      return dashboard.monthlyHours?.find((month) => month.hasData)?.month ?? "October";
     });
   }, [dashboard]);
 
   const selectedMonthData = useMemo(() => {
-    return dashboard?.monthlyHours.find((month) => month.month === selectedMonth) ?? dashboard?.monthlyHours[0];
+    return dashboard?.monthlyHours?.find((month) => month.month === selectedMonth) ?? dashboard?.monthlyHours?.[0];
   }, [dashboard, selectedMonth]);
 
   const annualProgress = dashboard ? getProgressPercent(dashboard.totalHours, dashboard.annualGoal) : 0;
@@ -180,7 +180,7 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-3 gap-2 sm:gap-3" role="tablist" aria-label="Monthly activity">
-                      {dashboard.monthlyHours.map((month) => (
+                      {(dashboard.monthlyHours ?? []).map((month) => (
                         <button
                           key={month.month}
                           type="button"
@@ -346,7 +346,8 @@ function getProgressPercent(hours: number, goal: number): number {
   return Math.min(100, Math.max(0, (hours / goal) * 100));
 }
 
-function formatHours(hours: number): string {
+function formatHours(hours: number | undefined | null): string {
+  if (hours == null || !Number.isFinite(hours)) return "0";
   return Number.isInteger(hours) ? String(hours) : hours.toFixed(1);
 }
 
