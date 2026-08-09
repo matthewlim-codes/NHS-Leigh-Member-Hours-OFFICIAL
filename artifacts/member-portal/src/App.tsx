@@ -8,6 +8,8 @@ import NotFound from "@/pages/not-found";
 
 import LoginPage from "@/pages/login";
 import DashboardPage from "@/pages/dashboard";
+import AdminPage from "@/pages/admin";
+import MessagesPage from "@/pages/messages";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     }
     
     if (isSuccess && user) {
+      if (user.role === "admin") {
+        if (location === "/login" || location === "/" || location === "/dashboard" || location === "/messages") {
+          setLocation("/admin");
+        }
+        return;
+      }
+
       if (location === "/login" || location === "/") {
         setLocation("/dashboard");
       }
@@ -53,6 +62,8 @@ function Router() {
     <Switch>
       <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={DashboardPage} />
+      <Route path="/messages" component={MessagesPage} />
+      <Route path="/admin" component={AdminPage} />
       <Route path="/" component={() => null} />
       <Route component={NotFound} />
     </Switch>

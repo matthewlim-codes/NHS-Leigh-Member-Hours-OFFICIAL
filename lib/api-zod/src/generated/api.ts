@@ -31,7 +31,8 @@ export const LoginBody = zod.object({
 
 export const LoginResponse = zod.object({
   "id": zod.number(),
-  "username": zod.string()
+  "username": zod.string(),
+  "role": zod.enum(["member", "admin"]).optional()
 })
 
 
@@ -48,7 +49,8 @@ export const LogoutResponse = zod.object({
  */
 export const GetMeResponse = zod.object({
   "id": zod.number(),
-  "username": zod.string()
+  "username": zod.string(),
+  "role": zod.enum(["member", "admin"]).optional()
 })
 
 

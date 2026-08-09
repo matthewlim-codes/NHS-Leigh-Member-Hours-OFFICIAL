@@ -1,12 +1,15 @@
 import { useGetMe, getGetMeQueryKey, useGetDashboard, getGetDashboardQueryKey, useLogout } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useLocation } from "wouter";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { LogOut, AlertCircle, CheckCircle2, CircleDollarSign, ClipboardList, Clock, XCircle } from "lucide-react";
+import { LogOut, AlertCircle, CheckCircle2, CircleDollarSign, ClipboardList, Clock, XCircle, Mail, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { dismissStudentMessage, getStudentInbox } from "@/lib/messages-api";
+
+const inboxQueryKey = ["student-inbox"];
 
 export default function DashboardPage() {
   const [, setLocation] = useLocation();
@@ -32,6 +35,19 @@ export default function DashboardPage() {
       enabled: isAuthSuccess && Boolean(user),
       retry: false
     }
+  });
+
+  const { data: inbox } = useQuery({
+    queryKey: inboxQueryKey,
+    queryFn: getStudentInbox,
+    enabled: isAuthSuccess && Boolean(user) && user?.role !== "admin",
+  });
+
+  const dismissMessage = useMutation({
+    mutationFn: dismissStudentMessage,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: inboxQueryKey });
+    },
   });
 
   const logoutMutation = useLogout();
@@ -63,6 +79,7 @@ export default function DashboardPage() {
 
   const annualProgress = dashboard ? getProgressPercent(dashboard.totalHours, dashboard.annualGoal) : 0;
   const isGrade10 = dashboard?.grade === 10;
+  const unreadMessages = inbox?.messages.filter((message) => message.unread) ?? [];
 
   if (isAuthLoading || (isAuthSuccess && isDashboardLoading)) {
     return (
@@ -82,17 +99,35 @@ export default function DashboardPage() {
           <h1 className="font-bold text-lg text-foreground flex items-center gap-2">
             Leigh NHS
           </h1>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleLogout}
-            disabled={logoutMutation.isPending}
-            className="text-muted-foreground hover:text-foreground"
-            data-testid="button-logout"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign out
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Link href="/messages" data-testid="link-messages">
+                <Mail className="w-4 h-4 mr-2" />
+                Messages
+                {(inbox?.unreadCount ?? 0) > 0 && (
+                  <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                    {inbox?.unreadCount}
+                  </span>
+                )}
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+              className="text-muted-foreground hover:text-foreground"
+              data-testid="button-logout"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign out
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -107,6 +142,41 @@ export default function DashboardPage() {
           </Alert>
         ) : (
           <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-5">
+            {unreadMessages.length > 0 && (
+              <section className="space-y-3" aria-label="Unread messages">
+                {unreadMessages.slice(0, 3).map((message) => (
+                  <div
+                    key={message.id}
+                    className="rounded-2xl border border-primary/20 bg-primary/5 p-4 shadow-sm"
+                    data-testid={`dashboard-message-${message.id}`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                          {message.category === "sheet_update" ? "Hours sheet update" : message.category.replace("_", " ")}
+                        </p>
+                        <h3 className="mt-1 font-display text-xl font-bold text-foreground">{message.title}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">{message.body}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => dismissMessage.mutate(message.id)}
+                        className="rounded-full p-1.5 text-muted-foreground hover:bg-background hover:text-foreground"
+                        aria-label="Dismiss message"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {unreadMessages.length > 3 && (
+                  <Button variant="outline" asChild>
+                    <Link href="/messages">View all {unreadMessages.length} unread messages</Link>
+                  </Button>
+                )}
+              </section>
+            )}
+
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground" data-testid="text-welcome-greeting">

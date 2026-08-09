@@ -127,6 +127,10 @@ components:
       properties:
         username:
           type: string
+        role:
+          type: string
+          enum: [member, admin]
+          description: Account role. Defaults to member for student logins.
           minLength: 1
         password:
           type: string

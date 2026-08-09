@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isSuccess && user) {
-      setLocation("/dashboard");
+      setLocation(user.role === "admin" ? "/admin" : "/dashboard");
     }
   }, [isSuccess, user, setLocation]);
 
@@ -50,7 +50,7 @@ export default function LoginPage() {
       {
         onSuccess: (data) => {
           queryClient.setQueryData(getGetMeQueryKey(), data);
-          setLocation("/dashboard");
+          setLocation(data.role === "admin" ? "/admin" : "/dashboard");
         },
       }
     );

@@ -19,6 +19,8 @@ export interface LoginInput {
 export interface AuthUser {
   id: number;
   username: string;
+  /** Account role. Defaults to member for student logins. */
+  role?: "member" | "admin";
 }
 
 export interface MonthlyHours {
