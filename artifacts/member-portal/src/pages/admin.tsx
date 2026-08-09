@@ -4,10 +4,30 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getGetMeQueryKey, useGetMe, useLogout } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAdminSummary, markSheetUpdated } from "@/lib/messages-api";
 import { AlertTriangle, CheckCircle2, LogOut, RefreshCw } from "lucide-react";
 
 const summaryQueryKey = ["admin-summary"];
+
+interface AdminSummary {
+  stats: {
+    latestSheetUpdate: { id: number; title: string; body: string; category: string; createdAt: string } | null;
+  };
+}
+
+async function getAdminSummary(): Promise<AdminSummary> {
+  const res = await fetch("/api/admin/summary", { credentials: "include" });
+  if (!res.ok) throw new Error("Failed to load admin summary");
+  return res.json() as Promise<AdminSummary>;
+}
+
+async function markSheetUpdated(): Promise<void> {
+  const res = await fetch("/api/admin/sheet-updated", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error("Failed to send broadcast");
+}
 
 export default function AdminPage() {
   const [, setLocation] = useLocation();

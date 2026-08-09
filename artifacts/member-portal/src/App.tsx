@@ -9,11 +9,9 @@ import NotFound from "@/pages/not-found";
 import LoginPage from "@/pages/login";
 import DashboardPage from "@/pages/dashboard";
 import AdminPage from "@/pages/admin";
-import MessagesPage from "@/pages/messages";
 
 const queryClient = new QueryClient();
 
-// Auth redirect handler to properly route the user based on state initially
 function AuthGate({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const { data: user, isSuccess, isError, isLoading } = useGetMe({
@@ -25,16 +23,15 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isLoading) return;
-    
-    // If not logged in and not on login page, redirect to login
+
     if (isError && location !== "/login") {
       setLocation("/login");
       return;
     }
-    
+
     if (isSuccess && user) {
       if (user.role === "admin") {
-        if (location === "/login" || location === "/" || location === "/dashboard" || location === "/messages") {
+        if (location === "/login" || location === "/" || location === "/dashboard") {
           setLocation("/admin");
         }
         return;
@@ -62,7 +59,6 @@ function Router() {
     <Switch>
       <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={DashboardPage} />
-      <Route path="/messages" component={MessagesPage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/" component={() => null} />
       <Route component={NotFound} />

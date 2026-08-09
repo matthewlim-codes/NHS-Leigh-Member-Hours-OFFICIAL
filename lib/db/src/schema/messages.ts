@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const adminMessagesTable = pgTable("admin_messages", {
   id: serial("id").primaryKey(),
@@ -11,14 +11,4 @@ export const adminMessagesTable = pgTable("admin_messages", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const messageDismissalsTable = pgTable("message_dismissals", {
-  id: serial("id").primaryKey(),
-  messageId: integer("message_id")
-    .notNull()
-    .references(() => adminMessagesTable.id, { onDelete: "cascade" }),
-  username: text("username").notNull(),
-  dismissedAt: timestamp("dismissed_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
 export type AdminMessage = typeof adminMessagesTable.$inferSelect;
-export type MessageDismissal = typeof messageDismissalsTable.$inferSelect;
