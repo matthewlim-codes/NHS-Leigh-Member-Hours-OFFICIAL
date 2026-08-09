@@ -8,6 +8,10 @@ import { getMemberFromSheet, getStudentIdTemporaryPassword } from "../lib/sheets
 
 const router: IRouter = Router();
 
+const ADMIN_USER_ID = -1;
+const ADMIN_USERNAME = "Admin";
+const ADMIN_PASSWORD = "00000";
+
 router.post("/auth/login", async (req, res): Promise<void> => {
   const parsed = LoginBody.safeParse(req.body);
   if (!parsed.success) {
@@ -16,6 +20,21 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   }
 
   const { username, password } = parsed.data;
+
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    req.session.userId = ADMIN_USER_ID;
+    req.session.username = ADMIN_USERNAME;
+    req.session.role = "admin";
+
+    req.log.info({ username: ADMIN_USERNAME }, "Admin logged in");
+
+    res.json(LoginResponse.parse({
+      id: ADMIN_USER_ID,
+      username: ADMIN_USERNAME,
+      role: "admin",
+    }));
+    return;
+  }
 
   const sheetMember = await getMemberFromSheet(username);
   if (!sheetMember) {
@@ -36,12 +55,14 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   if (existingMember) {
     req.session.userId = existingMember.id;
     req.session.username = existingMember.username;
+    req.session.role = "member";
 
     req.log.info({ username: existingMember.username }, "User logged in");
 
     res.json(LoginResponse.parse({
       id: existingMember.id,
       username: existingMember.username,
+      role: "member",
     }));
     return;
   }
@@ -55,12 +76,14 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
   req.session.userId = newMember.id;
   req.session.username = newMember.username;
+  req.session.role = "member";
 
   req.log.info({ username: newMember.username }, "New member account provisioned and logged in");
 
   res.json(LoginResponse.parse({
     id: newMember.id,
     username: newMember.username,
+    role: "member",
   }));
 });
 
@@ -74,8 +97,17 @@ router.post("/auth/logout", async (req, res): Promise<void> => {
 });
 
 router.get("/auth/me", async (req, res): Promise<void> => {
-  if (!req.session.userId) {
+  if (!req.session.userId || !req.session.username) {
     res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  if (req.session.role === "admin" || req.session.userId === ADMIN_USER_ID) {
+    res.json(GetMeResponse.parse({
+      id: ADMIN_USER_ID,
+      username: ADMIN_USERNAME,
+      role: "admin",
+    }));
     return;
   }
 
@@ -93,6 +125,7 @@ router.get("/auth/me", async (req, res): Promise<void> => {
   res.json(GetMeResponse.parse({
     id: member.id,
     username: member.username,
+    role: "member",
   }));
 });
 
