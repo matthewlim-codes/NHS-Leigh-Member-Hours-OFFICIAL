@@ -5,6 +5,7 @@ import { getGetMeQueryKey, useGetMe, useLogout } from "@workspace/api-client-rea
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle2, LogOut, RefreshCw } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 const summaryQueryKey = ["admin-summary"];
 
@@ -52,6 +53,7 @@ export default function AdminPage() {
   const sheetUpdated = useMutation({
     mutationFn: markSheetUpdated,
     onSuccess: async () => {
+      trackEvent("sheet_broadcast_sent");
       setConfirming(false);
       await queryClient.invalidateQueries({ queryKey: summaryQueryKey });
     },
@@ -63,6 +65,7 @@ export default function AdminPage() {
   const logout = useLogout();
 
   const onLogout = () => {
+    trackEvent("sign_out", { role: "admin" });
     logout.mutate(undefined, {
       onSettled: () => {
         queryClient.clear();

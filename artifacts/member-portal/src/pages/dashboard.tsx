@@ -7,6 +7,7 @@ import { LogOut, AlertCircle, CheckCircle2, CircleDollarSign, ClipboardList, Clo
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
 
 export default function DashboardPage() {
   const [, setLocation] = useLocation();
@@ -37,6 +38,7 @@ export default function DashboardPage() {
   const logoutMutation = useLogout();
 
   const handleLogout = () => {
+    trackEvent("sign_out", { role: "member" });
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
         queryClient.clear();
@@ -183,7 +185,10 @@ export default function DashboardPage() {
                         <button
                           key={month.month}
                           type="button"
-                          onClick={() => setSelectedMonth(month.month)}
+                          onClick={() => {
+                            trackEvent("month_selected", { month: month.month });
+                            setSelectedMonth(month.month);
+                          }}
                           className={cn(
                             "rounded-xl px-3 py-3 text-sm font-semibold transition-all border",
                             selectedMonth === month.month

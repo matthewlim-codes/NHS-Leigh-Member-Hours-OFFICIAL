@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { trackEvent } from "@/lib/analytics";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -49,8 +50,12 @@ export default function LoginPage() {
       { data: values },
       {
         onSuccess: (data) => {
+          trackEvent("sign_in_success", { role: data.role });
           queryClient.setQueryData(getGetMeQueryKey(), data);
           setLocation(data.role === "admin" ? "/admin" : "/dashboard");
+        },
+        onError: () => {
+          trackEvent("sign_in_failed");
         },
       }
     );
