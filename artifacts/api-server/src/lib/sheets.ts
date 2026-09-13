@@ -23,18 +23,14 @@ const TUTORIAL_SUBHEADER = "tutorial";
 const HEADER_SCAN_ROW_COUNT = 5;
 
 const MONTHS = [
+  "October",
+  "November",
+  "December",
   "January",
   "February",
   "March",
   "April",
   "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
 ] as const;
 
 const SHEET_HOUR_SECTION_ORDER = [
