@@ -4,8 +4,8 @@ import { ReplitConnectors } from "@replit/connectors-sdk";
 // To replace the Google Sheet, set GOOGLE_SHEET_ID to the long ID in the sheet
 // URL between /d/ and /edit. If the member data lives on different tabs, set
 // MEMBER_SHEET_TABS to a comma-separated list, e.g. "11/12,10".
-const DEFAULT_SPREADSHEET_ID = "1NAfPUYygYC_AuIVHrguiGO_7sixenv3P2JREIawRKrk";
-const DEFAULT_MEMBER_SHEET_TABS = ["11/12", "10"];
+const DEFAULT_SPREADSHEET_ID = "1B_u0OVJkrbNEH1TpTAKSGs5ev22B8Y-qeJc8GB3pf28";
+const DEFAULT_MEMBER_SHEET_TABS = ["11/12"];
 
 const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID?.trim() || DEFAULT_SPREADSHEET_ID;
 const MEMBER_SHEET_TABS = parseSheetTabs(process.env.MEMBER_SHEET_TABS);

@@ -29,7 +29,7 @@ Example local credentials used in Cloud setup:
 - Apply schema after install: `DATABASE_URL=... pnpm --filter @workspace/db run push`
 
 Also required for the API: `SESSION_SECRET` (any non-empty dev string).
-Optional Google Sheet overrides: `GOOGLE_SHEET_ID` and `MEMBER_SHEET_TABS` (comma-separated, defaults to `11/12,10`).
+Optional Google Sheet overrides: `GOOGLE_SHEET_ID` and `MEMBER_SHEET_TABS` (comma-separated, defaults to `11/12`).
 
 ### Running services locally
 
