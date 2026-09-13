@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
-import { db, membersTable } from "@workspace/db";
+import { desc, eq } from "drizzle-orm";
+import { adminMessagesTable, db, membersTable } from "@workspace/db";
 import { GetDashboardResponse } from "@workspace/api-zod";
 import { getMemberFromSheet } from "../lib/sheets";
 
@@ -50,6 +50,22 @@ router.get("/dashboard", async (req, res): Promise<void> => {
     semester2Remaining: getRemaining(sheetMember.semester2Hours, getSemester2Goal(sheetMember.grade)),
     monthlyHours: sheetMember.monthlyHours,
   }));
+});
+
+router.get("/dashboard/sheet-status", async (req, res): Promise<void> => {
+  if (!req.session.userId) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  const [latestUpdate] = await db
+    .select({ updatedAt: adminMessagesTable.createdAt })
+    .from(adminMessagesTable)
+    .where(eq(adminMessagesTable.category, "sheet_update"))
+    .orderBy(desc(adminMessagesTable.createdAt))
+    .limit(1);
+
+  res.json({ updatedAt: latestUpdate?.updatedAt ?? null });
 });
 
 function getAnnualGoal(grade: number): number {

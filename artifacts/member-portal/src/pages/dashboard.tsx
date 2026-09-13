@@ -1,13 +1,29 @@
 import { useGetMe, getGetMeQueryKey, useGetDashboard, getGetDashboardQueryKey, useLogout } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { LogOut, AlertCircle, CheckCircle2, CircleDollarSign, ClipboardList, Clock, XCircle } from "lucide-react";
+import { LogOut, AlertCircle, CalendarClock, CheckCircle2, CircleDollarSign, ClipboardList, Clock, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
+
+interface SheetStatus {
+  updatedAt: string | null;
+}
+
+async function getSheetStatus(): Promise<SheetStatus> {
+  const response = await fetch("/api/dashboard/sheet-status", {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Could not load the sheet update time");
+  }
+
+  return response.json() as Promise<SheetStatus>;
+}
 
 export default function DashboardPage() {
   const [, setLocation] = useLocation();
@@ -33,6 +49,13 @@ export default function DashboardPage() {
       enabled: isAuthSuccess && Boolean(user),
       retry: false
     }
+  });
+
+  const { data: sheetStatus } = useQuery({
+    queryKey: ["sheet-status"],
+    queryFn: getSheetStatus,
+    enabled: isAuthSuccess && Boolean(user) && user?.role !== "admin",
+    refetchInterval: 60_000,
   });
 
   const logoutMutation = useLogout();
@@ -118,6 +141,11 @@ export default function DashboardPage() {
                 </h2>
                 <p className="mt-2 text-muted-foreground">
                   {dashboard ? `Grade ${dashboard.grade}` : "Loading member data"}
+                </p>
+                <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-primary">
+                  <CalendarClock className="h-4 w-4" />
+                  Hours last updated on:{" "}
+                  {sheetStatus?.updatedAt ? formatUpdatedAt(sheetStatus.updatedAt) : "Not yet recorded"}
                 </p>
               </div>
               <div className="rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
@@ -353,6 +381,13 @@ function getProgressPercent(hours: number, goal: number): number {
 function formatHours(hours: number | undefined | null): string {
   if (hours == null || !Number.isFinite(hours)) return "0";
   return Number.isInteger(hours) ? String(hours) : hours.toFixed(1);
+}
+
+function formatUpdatedAt(value: string): string {
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
 }
 
 function getApiErrorMessage(error: unknown, fallback: string): string {
