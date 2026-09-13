@@ -47,10 +47,12 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
+  const canonicalUsername = sheetMember.username;
+
   const [existingMember] = await db
     .select()
     .from(membersTable)
-    .where(eq(membersTable.username, username));
+    .where(eq(membersTable.username, canonicalUsername));
 
   if (existingMember) {
     req.session.userId = existingMember.id;
@@ -71,7 +73,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   const passwordHash = await bcrypt.hash(password, 12);
   const [newMember] = await db
     .insert(membersTable)
-    .values({ username, passwordHash })
+    .values({ username: canonicalUsername, passwordHash })
     .returning();
 
   req.session.userId = newMember.id;
