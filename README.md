@@ -37,7 +37,7 @@ pnpm --filter @workspace/api-server run dev
 pnpm --filter @workspace/member-portal run dev
 ```
 
-To replace the Google Sheet later, copy/upload the new sheet, authorize it with the Replit Google Sheets integration, then set `GOOGLE_SHEET_ID` and update `MEMBER_SHEET_TABS` if the tab names differ.
+The app now defaults to Google Sheet `1B_u0OVJkrbNEH1TpTAKSGs5ev22B8Y-qeJc8GB3pf28`. To replace the Google Sheet later, copy/upload the new sheet, authorize it with the Replit Google Sheets integration, then set `GOOGLE_SHEET_ID`; leave `MEMBER_SHEET_TABS` blank to scan every tab, or set it only if you want to limit the tabs.
 
 ## Why I built this
 NHS hour tracking was previously handled manually, which made it harder for members to check progress or access records. This app centralizes that process into one accessible portal.

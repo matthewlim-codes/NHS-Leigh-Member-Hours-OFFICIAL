@@ -2,10 +2,11 @@ import { ReplitConnectors } from "@replit/connectors-sdk";
 
 // --- SPREADSHEET CONFIG ------------------------------------------------------
 // To replace the Google Sheet, set GOOGLE_SHEET_ID to the long ID in the sheet
-// URL between /d/ and /edit. If the member data lives on different tabs, set
-// MEMBER_SHEET_TABS to a comma-separated list, e.g. "11/12,10".
-const DEFAULT_SPREADSHEET_ID = "1NAfPUYygYC_AuIVHrguiGO_7sixenv3P2JREIawRKrk";
-const DEFAULT_MEMBER_SHEET_TABS = ["11/12", "10"];
+// URL between /d/ and /edit. By default, the API scans every tab in the sheet.
+// If you only want certain tabs, set MEMBER_SHEET_TABS to a comma-separated
+// list, e.g. "11/12,10".
+const DEFAULT_SPREADSHEET_ID = "1B_u0OVJkrbNEH1TpTAKSGs5ev22B8Y-qeJc8GB3pf28";
+const FALLBACK_MEMBER_SHEET_TABS = ["11/12", "10"];
 
 const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID?.trim() || DEFAULT_SPREADSHEET_ID;
 const MEMBER_SHEET_TABS = parseSheetTabs(process.env.MEMBER_SHEET_TABS);
@@ -100,8 +101,9 @@ export async function getMemberFromSheet(username: string): Promise<SheetMember 
 export async function listMembersFromSheet(): Promise<SheetMember[]> {
   const connectors = new ReplitConnectors();
   const members: SheetMember[] = [];
+  const sheetTabs = await getMemberSheetTabs(connectors);
 
-  for (const sheetTab of MEMBER_SHEET_TABS) {
+  for (const sheetTab of sheetTabs) {
     const range = encodeURIComponent(`${quoteSheetName(sheetTab)}!A:ZZ`);
     const response = await connectors.proxy(
       "google-sheet",
@@ -158,13 +160,39 @@ export function getStudentIdTemporaryPassword(studentId: string): string {
   return normalizeStudentId(studentId);
 }
 
-function parseSheetTabs(rawTabs: string | undefined): string[] {
+function parseSheetTabs(rawTabs: string | undefined): string[] | null {
   const tabs = rawTabs
     ?.split(",")
     .map((tab) => tab.trim())
     .filter(Boolean);
 
-  return tabs && tabs.length > 0 ? tabs : DEFAULT_MEMBER_SHEET_TABS;
+  return tabs && tabs.length > 0 ? tabs : null;
+}
+
+async function getMemberSheetTabs(connectors: ReplitConnectors): Promise<string[]> {
+  if (MEMBER_SHEET_TABS) return MEMBER_SHEET_TABS;
+
+  try {
+    const response = await connectors.proxy(
+      "google-sheet",
+      `/v4/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties.title`,
+      { method: "GET" },
+    );
+    const data = await response.json() as {
+      sheets?: Array<{ properties?: { title?: string } }>;
+    };
+    const discoveredTabs = data.sheets
+      ?.map((sheet) => sheet.properties?.title?.trim())
+      .filter((title): title is string => Boolean(title));
+
+    if (discoveredTabs && discoveredTabs.length > 0) {
+      return discoveredTabs;
+    }
+  } catch {
+    // Fall back to the historical tab names if metadata access is unavailable.
+  }
+
+  return FALLBACK_MEMBER_SHEET_TABS;
 }
 
 function quoteSheetName(sheetName: string): string {

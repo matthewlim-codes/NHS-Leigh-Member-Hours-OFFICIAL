@@ -15,7 +15,7 @@ A private member portal for an NHS-style community club. Members log in to see t
 - Required env: `DATABASE_URL` — Postgres connection string
 - Required env: `SESSION_SECRET` — secret for express-session
 - Optional env: `GOOGLE_SHEET_ID` — replace the default member-hours Google Sheet without code changes
-- Optional env: `MEMBER_SHEET_TABS` — comma-separated member data tabs, defaults to `11/12,10`
+- Optional env: `MEMBER_SHEET_TABS` — comma-separated member data tabs; leave blank to scan every tab
 
 ## Stack
 
@@ -52,12 +52,14 @@ Members visit the portal, enter their username (e.g. `Matthew-Lim`) and their St
 
 ## Replacing the Google Sheet
 
-To switch to a newly uploaded/copied Google Sheet, authorize the Replit `google-sheet` integration for that sheet, then set:
+The current default sheet is `1B_u0OVJkrbNEH1TpTAKSGs5ev22B8Y-qeJc8GB3pf28`.
+
+To switch to another uploaded/copied Google Sheet, authorize the Replit `google-sheet` integration for that sheet, then set:
 
 - `GOOGLE_SHEET_ID` to the sheet ID from the URL (`https://docs.google.com/spreadsheets/d/<GOOGLE_SHEET_ID>/edit`)
-- `MEMBER_SHEET_TABS` to the comma-separated tabs containing member rows, for example `11/12,10`
+- `MEMBER_SHEET_TABS` to the comma-separated tabs containing member rows, for example `11/12,10`; leave blank to scan every tab
 
-The sheet parser scans the first few rows for headers, so the tabs should include `STUDENT ID`, `NAME`, and `TOTAL HOURS`. Optional columns include `GRADE`, `INFO FORM`, `CLUB DUES`, `SEM 1 HOURS`, and monthly HW Center/Tutorial pairs.
+The sheet is fetched live through the Google Sheets API on login/admin/dashboard requests, so edits in Google Sheets appear on the website without importing or rebuilding. The parser scans the first few rows for headers, so member tabs should include `STUDENT ID`, `NAME`, and `TOTAL HOURS`. Optional columns include `GRADE`, `INFO FORM`, `CLUB DUES`, `SEM 1 HOURS`, and monthly HW Center/Tutorial pairs.
 
 ## User preferences
 
@@ -67,7 +69,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 - Always run `pnpm run typecheck:libs` before `pnpm --filter @workspace/api-server run typecheck` after changing `lib/db` schema — the composite lib must be rebuilt first.
 - The Google Sheets integration uses Replit's connector proxy (`@replit/connectors-sdk`). If it returns errors, the connection may need to be re-authorized via the integrations panel.
-- The spreadsheet ID and member data tabs can be replaced with `GOOGLE_SHEET_ID` and `MEMBER_SHEET_TABS`. The current default reads the `11/12` and `10` tabs, finds columns by header across the first few header rows, and expects `STUDENT ID`, `NAME`, and `TOTAL HOURS` columns.
+- The spreadsheet ID can be replaced with `GOOGLE_SHEET_ID`; `MEMBER_SHEET_TABS` can limit which tabs are scanned. When `MEMBER_SHEET_TABS` is blank, all tabs are scanned for `STUDENT ID`, `NAME`, and `TOTAL HOURS` columns.
 - Hour goals are calculated in `artifacts/api-server/src/routes/dashboard.ts`: grade 10 requires 7 annual hours; grades 11/12 require 20 annual hours, split as 9 semester 1 hours and 11 semester 2 hours.
 
 ## Pointers
