@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getGetMeQueryKey, useGetMe, useLogout } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle2, LogOut, RefreshCw } from "lucide-react";
+import { AlertTriangle, CheckCircle2, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 
 const summaryQueryKey = ["admin-summary"];
@@ -76,8 +76,8 @@ export default function AdminPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[100dvh] grid place-items-center text-muted-foreground">
-        Loading…
+      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+        <div className="animate-pulse text-muted-foreground font-medium text-[16px]">Loading admin...</div>
       </div>
     );
   }
@@ -86,47 +86,63 @@ export default function AdminPage() {
 
   const lastUpdate = data?.stats.latestSheetUpdate
     ? formatDate(data.stats.latestSheetUpdate.createdAt)
-    : "Never";
+    : "Never updated";
 
   return (
-    <div className="min-h-[100dvh] bg-background">
-      <header className="sticky top-0 z-10 border-b border-border bg-card">
-        <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Admin</p>
-            <h1 className="font-display text-xl font-bold">Dashboard</h1>
+    <div className="min-h-[100dvh] bg-background flex flex-col">
+      <header className="bg-background border-b border-border sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-ink">
+            <ShieldCheck className="w-5 h-5 text-primary" />
+            <span className="font-bold text-[16px]">NHS Admin</span>
           </div>
-          <Button variant="ghost" size="sm" onClick={onLogout} disabled={logout.isPending}>
-            <LogOut className="mr-2 h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onLogout}
+            disabled={logout.isPending}
+            className="text-muted-foreground hover:text-ink h-8 px-2 font-medium"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
             Sign out
           </Button>
         </div>
       </header>
 
-      <main className="mx-auto max-w-lg px-4 py-10">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2">
-              <RefreshCw className="h-5 w-5 text-primary" />
-              Sheet update broadcast
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 md:py-12">
+        <div className="mb-8">
+          <h1 className="text-[40px] font-bold text-ink leading-tight">Admin Dashboard</h1>
+          <p className="text-[16px] text-muted-foreground mt-2">Manage sheet synchronizations and system status.</p>
+        </div>
+
+        <Card className="rounded border border-border bg-card shadow-sm">
+          <CardHeader className="border-b border-border pb-6 pt-6 px-6 md:px-8">
+            <CardTitle className="text-[24px] font-bold flex items-center gap-3">
+              Google Sheet Data
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Notifies all members that the hours sheet has been updated. Last sent:{" "}
-              <span className="font-medium text-foreground">{lastUpdate}</span>.
-            </p>
+          <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-muted/20 rounded border border-border">
+              <div>
+                <p className="text-[13px] uppercase tracking-wider font-semibold text-muted-foreground">Last Successful Sync</p>
+                <p className="text-[16px] font-medium text-ink mt-1">{lastUpdate}</p>
+              </div>
+              <div className="flex items-center gap-2 text-[13px] font-medium text-muted-foreground">
+                <div className="w-2 h-2 rounded-full bg-success"></div>
+                System Ready
+              </div>
+            </div>
 
             {sheetUpdated.isSuccess && (
-              <div className="flex items-center gap-2 rounded-lg bg-green-500/10 px-3 py-2 text-sm text-green-700 dark:text-green-400">
-                <CheckCircle2 className="h-4 w-4 shrink-0" />
-                Broadcast sent successfully.
+              <div className="flex items-center gap-3 rounded bg-success/10 border border-success/20 px-4 py-3 text-[16px] text-success-foreground font-medium text-emerald-800">
+                <CheckCircle2 className="h-5 w-5 shrink-0" />
+                Data sync broadcast sent successfully.
               </div>
             )}
 
             {sheetUpdated.isError && (
-              <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                <AlertTriangle className="h-4 w-4 shrink-0" />
+              <div className="flex items-center gap-3 rounded bg-destructive/10 border border-destructive/20 px-4 py-3 text-[16px] text-destructive font-medium">
+                <AlertTriangle className="h-5 w-5 shrink-0" />
                 {sheetUpdated.error instanceof Error
                   ? sheetUpdated.error.message
                   : "Failed to send broadcast."}
@@ -135,34 +151,39 @@ export default function AdminPage() {
 
             {!confirming ? (
               <Button
-                variant="outline"
                 onClick={() => setConfirming(true)}
                 disabled={sheetUpdated.isPending}
+                className="w-full sm:w-auto h-12 px-6 text-[16px] font-semibold rounded bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Send sheet update broadcast
+                <RefreshCw className="mr-2 h-5 w-5" />
+                Update from Google Sheet
               </Button>
             ) : (
-              <div className="space-y-3 rounded-xl border border-amber-400/40 bg-amber-50 p-4 dark:bg-amber-950/30">
-                <div className="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>
-                    This will notify <strong>all members</strong>. Are you sure the sheet is ready?
-                  </span>
+              <div className="space-y-4 rounded border border-destructive/30 bg-destructive/5 p-6 mt-4">
+                <div className="flex items-start gap-3 text-destructive">
+                  <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0" />
+                  <div>
+                    <h4 className="font-bold text-[18px]">Confirm Data Sync</h4>
+                    <p className="text-[16px] mt-1 opacity-90">
+                      This will sync the latest data from the Google Sheet and notify all members. Continue?
+                    </p>
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Button
-                    size="sm"
+                    size="lg"
                     onClick={() => sheetUpdated.mutate()}
                     disabled={sheetUpdated.isPending}
+                    className="h-12 px-6 text-[16px] font-semibold rounded bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    {sheetUpdated.isPending ? "Sending…" : "Yes, send it"}
+                    {sheetUpdated.isPending ? "Syncing Data..." : "Confirm Update"}
                   </Button>
                   <Button
-                    size="sm"
-                    variant="ghost"
+                    size="lg"
+                    variant="outline"
                     onClick={() => setConfirming(false)}
                     disabled={sheetUpdated.isPending}
+                    className="h-12 px-6 text-[16px] font-semibold rounded border-border hover:bg-muted"
                   >
                     Cancel
                   </Button>
