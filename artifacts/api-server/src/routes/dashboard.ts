@@ -7,7 +7,6 @@ import { getMemberFromSheet } from "../lib/sheets";
 const router: IRouter = Router();
 
 const GRADE_10_ANNUAL_GOAL = 7;
-const UPPER_GRADE_ANNUAL_GOAL = 20;
 const UPPER_GRADE_SEMESTER_1_GOAL = 9;
 const SENIOR_SEMESTER_1_GOAL = 8;
 const UPPER_GRADE_SEMESTER_2_GOAL = 11;
@@ -70,7 +69,8 @@ router.get("/dashboard/sheet-status", async (req, res): Promise<void> => {
 });
 
 function getAnnualGoal(grade: number): number {
-  return grade === 10 ? GRADE_10_ANNUAL_GOAL : UPPER_GRADE_ANNUAL_GOAL;
+  if (grade === 10) return GRADE_10_ANNUAL_GOAL;
+  return getSemester1Goal(grade) + getSemester2Goal(grade);
 }
 
 function getSemester1Goal(grade: number): number {
