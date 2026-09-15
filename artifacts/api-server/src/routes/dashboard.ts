@@ -7,9 +7,9 @@ import { getMemberFromSheet } from "../lib/sheets";
 const router: IRouter = Router();
 
 const GRADE_10_ANNUAL_GOAL = 7;
-const UPPER_GRADE_SEMESTER_1_GOAL = 9;
 const SENIOR_SEMESTER_1_GOAL = 8;
 const UPPER_GRADE_SEMESTER_2_GOAL = 11;
+const JUNIOR_MONTHS = new Set(["January", "February", "March", "April", "May"]);
 
 router.get("/dashboard", async (req, res): Promise<void> => {
   if (!req.session.userId) {
@@ -48,7 +48,10 @@ router.get("/dashboard", async (req, res): Promise<void> => {
     semester2Hours: sheetMember.semester2Hours,
     semester2Goal: getSemester2Goal(sheetMember.grade),
     semester2Remaining: getRemaining(sheetMember.semester2Hours, getSemester2Goal(sheetMember.grade)),
-    monthlyHours: sheetMember.monthlyHours,
+    monthlyHours:
+      sheetMember.grade === 11
+        ? sheetMember.monthlyHours.filter((month) => JUNIOR_MONTHS.has(month.month))
+        : sheetMember.monthlyHours,
   }));
 });
 
@@ -74,8 +77,7 @@ function getAnnualGoal(grade: number): number {
 }
 
 function getSemester1Goal(grade: number): number {
-  if (grade === 10) return 0;
-  return grade === 12 ? SENIOR_SEMESTER_1_GOAL : UPPER_GRADE_SEMESTER_1_GOAL;
+  return grade === 12 ? SENIOR_SEMESTER_1_GOAL : 0;
 }
 
 function getSemester2Goal(grade: number): number {

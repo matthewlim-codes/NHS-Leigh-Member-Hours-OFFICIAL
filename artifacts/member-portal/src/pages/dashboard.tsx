@@ -184,23 +184,22 @@ export default function DashboardPage() {
                 </Card>
 
                 {!isGrade10 && (
-                  <section className="grid gap-3 md:grid-cols-2">
-                    <ProgressCard
-                      label="Semester 1"
-                      hours={dashboard.semester1Hours}
-                      goal={dashboard.semester1Goal}
-                      remaining={dashboard.semester1Remaining}
-                      note={
-                        dashboard.grade === 12
-                          ? "Oct–Dec: 1 HW Center hour and 1 Tutorial hour each month, plus 2 hours from any activity."
-                          : undefined
-                      }
-                    />
+                  <section className={cn("grid gap-3", dashboard.grade === 12 && "md:grid-cols-2")}>
+                    {dashboard.grade === 12 && (
+                      <ProgressCard
+                        label="Semester 1"
+                        hours={dashboard.semester1Hours}
+                        goal={dashboard.semester1Goal}
+                        remaining={dashboard.semester1Remaining}
+                        note="Oct–Dec: 1 HW Center hour and 1 Tutorial hour each month, plus 2 hours from any activity."
+                      />
+                    )}
                     <ProgressCard
                       label="Semester 2"
                       hours={dashboard.semester2Hours}
                       goal={dashboard.semester2Goal}
                       remaining={dashboard.semester2Remaining}
+                      note={dashboard.grade === 11 ? "Junior requirement covers January–May only." : undefined}
                     />
                   </section>
                 )}
