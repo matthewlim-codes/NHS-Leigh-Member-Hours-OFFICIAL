@@ -11,7 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { trackEvent } from "@/lib/analytics";
-import { ShieldCheck } from "lucide-react";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -50,7 +49,7 @@ export default function LoginPage() {
     loginMutation.mutate(
       { data: values },
       {
-        onSuccess: (data: any) => {
+        onSuccess: (data) => {
           trackEvent("sign_in_success", { role: data.role });
           queryClient.setQueryData(getGetMeQueryKey(), data);
           setLocation(data.role === "admin" ? "/admin" : "/dashboard");
@@ -63,28 +62,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 bg-background">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-[400px]">
-        <div className="flex flex-col items-center mb-10 text-center">
-          <div className="h-16 w-16 bg-primary/10 rounded flex items-center justify-center mb-6">
-            <ShieldCheck className="w-8 h-8 text-primary" />
-          </div>
-          <h1 className="text-[40px] font-bold tracking-tight text-ink leading-tight" data-testid="heading-login">
-            NHS Portal
+        <div className="flex flex-col items-center mb-8 text-center">
+          <img
+            src={`${import.meta.env.BASE_URL}nhs-logo.png`}
+            alt="National Honor Society"
+            className="mb-4 h-24 w-auto"
+          />
+          <h1 className="text-2xl font-bold tracking-tight text-foreground" data-testid="heading-login">
+            Leigh NHS Member Portal
           </h1>
-          <p className="text-muted-foreground mt-2 text-[16px]" data-testid="text-login-subtitle">
-            Leigh High School Member Hours
+          <p className="text-muted-foreground mt-2" data-testid="text-login-subtitle">
+            Sign in to access your volunteer dashboard
           </p>
         </div>
 
-        <Card className="border-b-4 border-b-primary border-x border-t border-border shadow-sm bg-card rounded">
-          <CardHeader className="pb-4 pt-6 px-6">
-            <CardTitle className="text-[20px] font-bold text-ink">Sign In</CardTitle>
-            <CardDescription className="text-[16px] text-muted-foreground">Access your volunteer dashboard</CardDescription>
+        <Card className="shadow-lg border-muted/50">
+          <CardHeader>
+            <CardTitle>Welcome back</CardTitle>
+            <CardDescription>Enter your details below to sign in.</CardDescription>
           </CardHeader>
-          <CardContent className="px-6 pb-6">
+          <CardContent>
             {loginMutation.isError && (
-              <Alert variant="destructive" className="mb-6 rounded" data-testid="alert-login-error">
+              <Alert variant="destructive" className="mb-6" data-testid="alert-login-error">
                 <AlertDescription>
                   {loginMutation.error?.data?.error || "We couldn't sign you in. Please check your details and try again."}
                 </AlertDescription>
@@ -92,27 +93,34 @@ export default function LoginPage() {
             )}
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-semibold text-ink text-[16px]">Username</FormLabel>
+                      <FormLabel>Username</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="FirstName-LastName" 
+                          placeholder="First-Last" 
                           autoComplete="username"
                           autoCapitalize="none"
                           autoCorrect="off"
-                          className="h-12 rounded text-[16px] border-border bg-background"
                           {...field} 
                           data-testid="input-username"
                         />
                       </FormControl>
-                      <p className="text-[13px] text-muted-foreground mt-1.5">
-                        First and last name separated by a hyphen
+                      <p className="text-[13px] text-muted-foreground mt-1">
+                        Use your first and last name separated by a hyphen (e.g. Alexander-Hamilton)
                       </p>
+                      <details className="group mt-1 text-[13px] text-muted-foreground">
+                        <summary className="cursor-pointer font-medium text-primary underline-offset-4 hover:underline">
+                          Exceptions
+                        </summary>
+                        <p className="mt-1">
+                          If you have two last names, format it like First-Last 2ndLast.
+                        </p>
+                      </details>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -123,40 +131,44 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-semibold text-ink text-[16px]">Password</FormLabel>
+                      <FormLabel>Password</FormLabel>
                       <FormControl>
                         <Input 
                           type="password" 
                           autoComplete="current-password"
-                          placeholder="Student ID" 
-                          className="h-12 rounded font-mono text-[16px] border-border bg-background"
+                          placeholder="••••••••" 
                           {...field} 
                           data-testid="input-password"
                         />
                       </FormControl>
                       <FormMessage />
+                      <p className="text-[13px] text-muted-foreground mt-1">
+                        Your student ID
+                      </p>
                     </FormItem>
                   )}
                 />
 
                 <Button 
                   type="submit" 
-                  className="w-full h-12 text-[16px] font-semibold rounded bg-primary text-primary-foreground hover:bg-primary/90 mt-2" 
+                  className="w-full text-base font-medium" 
+                  size="lg"
                   disabled={loginMutation.isPending}
                   data-testid="button-submit-login"
                 >
-                  {loginMutation.isPending ? "Signing in..." : "Sign In"}
+                  {loginMutation.isPending ? "Signing in..." : "Sign in"}
                 </Button>
               </form>
             </Form>
           </CardContent>
         </Card>
         
-        <p className="text-center text-[13px] text-muted-foreground mt-8" data-testid="text-support">
-          Forgot credentials? Contact{" "}
-          <a className="text-primary font-medium underline-offset-4 hover:underline" href="mailto:562022@my.cuhsd.org">
+        <p className="text-center text-sm text-muted-foreground mt-8" data-testid="text-support">
+          Need help signing in? Contact{" "}
+          <a className="text-primary underline-offset-4 hover:underline" href="mailto:562022@my.cuhsd.org">
             562022@my.cuhsd.org
-          </a>
+          </a>{" "}
+          with questions
         </p>
       </div>
     </div>
