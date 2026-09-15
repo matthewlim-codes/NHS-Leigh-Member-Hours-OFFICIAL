@@ -9,6 +9,7 @@ const router: IRouter = Router();
 const GRADE_10_ANNUAL_GOAL = 7;
 const UPPER_GRADE_ANNUAL_GOAL = 20;
 const UPPER_GRADE_SEMESTER_1_GOAL = 9;
+const SENIOR_SEMESTER_1_GOAL = 8;
 const UPPER_GRADE_SEMESTER_2_GOAL = 11;
 
 router.get("/dashboard", async (req, res): Promise<void> => {
@@ -73,7 +74,8 @@ function getAnnualGoal(grade: number): number {
 }
 
 function getSemester1Goal(grade: number): number {
-  return grade === 10 ? 0 : UPPER_GRADE_SEMESTER_1_GOAL;
+  if (grade === 10) return 0;
+  return grade === 12 ? SENIOR_SEMESTER_1_GOAL : UPPER_GRADE_SEMESTER_1_GOAL;
 }
 
 function getSemester2Goal(grade: number): number {

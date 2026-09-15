@@ -190,6 +190,11 @@ export default function DashboardPage() {
                       hours={dashboard.semester1Hours}
                       goal={dashboard.semester1Goal}
                       remaining={dashboard.semester1Remaining}
+                      note={
+                        dashboard.grade === 12
+                          ? "Oct–Dec: 1 HW Center hour and 1 Tutorial hour each month, plus 2 hours from any activity."
+                          : undefined
+                      }
                     />
                     <ProgressCard
                       label="Semester 2"
@@ -338,7 +343,19 @@ function StatusCard({
   );
 }
 
-function ProgressCard({ label, hours, goal, remaining }: { label: string; hours: number; goal: number; remaining: number }) {
+function ProgressCard({
+  label,
+  hours,
+  goal,
+  remaining,
+  note,
+}: {
+  label: string;
+  hours: number;
+  goal: number;
+  remaining: number;
+  note?: string;
+}) {
   const progress = getProgressPercent(hours, goal);
 
   return (
@@ -359,6 +376,11 @@ function ProgressCard({ label, hours, goal, remaining }: { label: string; hours:
         <p className="text-xs text-muted-foreground mt-2">
           {remaining === 0 ? "Requirement met" : `${formatHours(remaining)} hours remaining`}
         </p>
+        {note && (
+          <p className="mt-3 border-t border-border pt-3 text-xs leading-relaxed text-muted-foreground">
+            {note}
+          </p>
+        )}
       </CardContent>
     </Card>
   );
