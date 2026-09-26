@@ -85,6 +85,7 @@ export default function DashboardPage() {
   const selectedMonthData = useMemo(() => {
     return dashboard?.monthlyHours?.find((month) => month.month === selectedMonth) ?? dashboard?.monthlyHours?.[0];
   }, [dashboard, selectedMonth]);
+  const selectedMonthIndex = dashboard?.monthlyHours?.findIndex((month) => month.month === selectedMonth) ?? -1;
 
   const annualProgress = dashboard ? getProgressPercent(dashboard.totalHours, dashboard.annualGoal) : 0;
   const isGrade10 = dashboard?.grade === 10;
@@ -205,34 +206,36 @@ export default function DashboardPage() {
                   <CardHeader className="pb-3">
                     <CardTitle className="text-xl font-display">Monthly Activity</CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Select a month to see your HW Center, Tutorial, and total hours.
+                      Slide to see your HW Center, Tutorial, and total hours by month.
                     </p>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-3 gap-2 sm:gap-3" role="tablist" aria-label="Monthly activity">
-                      {(dashboard.monthlyHours ?? []).map((month) => (
-                        <button
-                          key={month.month}
-                          type="button"
-                          onClick={() => {
-                            trackEvent("month_selected", { month: month.month });
-                            setSelectedMonth(month.month);
+                    {dashboard.monthlyHours?.length > 0 && (
+                      <div>
+                        <label htmlFor="month-slider" className="sr-only">Select activity month</label>
+                        <input
+                          id="month-slider"
+                          className="month-slider"
+                          type="range"
+                          min={0}
+                          max={dashboard.monthlyHours.length - 1}
+                          step={1}
+                          value={Math.max(0, selectedMonthIndex)}
+                          aria-valuetext={selectedMonthData?.month}
+                          onChange={(event) => {
+                            const month = dashboard.monthlyHours[Number(event.currentTarget.value)];
+                            if (month && month.month !== selectedMonth) {
+                              setSelectedMonth(month.month);
+                              trackEvent("month_selected", { month: month.month });
+                            }
                           }}
-                          className={cn(
-                            "rounded-xl px-3 py-3 text-sm font-semibold transition-all border",
-                            selectedMonth === month.month
-                              ? "bg-primary text-primary-foreground border-primary shadow-md"
-                              : month.hasData
-                                ? "bg-background text-foreground border-border hover:border-primary/40 hover:bg-primary/5"
-                                : "bg-muted/50 text-muted-foreground border-transparent"
-                          )}
-                          aria-selected={selectedMonth === month.month}
-                          role="tab"
-                        >
-                          {month.shortLabel}
-                        </button>
-                      ))}
-                    </div>
+                        />
+                        <div className="flex justify-between text-xs font-medium text-muted-foreground">
+                          <span>{dashboard.monthlyHours[0].shortLabel}</span>
+                          <span>{dashboard.monthlyHours[dashboard.monthlyHours.length - 1].shortLabel}</span>
+                        </div>
+                      </div>
+                    )}
 
                     {selectedMonthData && (
                       <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 animate-in fade-in slide-in-from-top-2 duration-200">

@@ -228,6 +228,37 @@
 }
 
 @layer utilities {
+  .month-slider {
+    appearance: none;
+    display: block;
+    width: 100%;
+    height: 10px;
+    margin: 12px 0;
+    border-radius: 9999px;
+    background: hsl(var(--muted));
+    cursor: pointer;
+  }
+  .month-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border: 3px solid hsl(var(--card));
+    border-radius: 50%;
+    background: hsl(var(--primary));
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.25);
+  }
+  .month-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border: 3px solid hsl(var(--card));
+    border-radius: 50%;
+    background: hsl(var(--primary));
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.25);
+  }
+  .month-slider:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 5px;
+  }
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;
   }
