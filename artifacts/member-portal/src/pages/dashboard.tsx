@@ -148,9 +148,6 @@ export default function DashboardPage() {
                   {sheetStatus?.updatedAt ? formatUpdatedAt(sheetStatus.updatedAt) : "Not yet recorded"}
                 </p>
               </div>
-              <div className="rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
-                {dashboard ? `${formatHours(dashboard.totalHours)} of ${formatHours(dashboard.annualGoal)} hours completed` : "Loading"}
-              </div>
             </div>
 
             {dashboard && (
