@@ -86,6 +86,9 @@ export default function DashboardPage() {
     return dashboard?.monthlyHours?.find((month) => month.month === selectedMonth) ?? dashboard?.monthlyHours?.[0];
   }, [dashboard, selectedMonth]);
   const selectedMonthIndex = dashboard?.monthlyHours?.findIndex((month) => month.month === selectedMonth) ?? -1;
+  const monthProgress = dashboard?.monthlyHours?.length
+    ? (Math.max(0, selectedMonthIndex) / Math.max(1, dashboard.monthlyHours.length - 1)) * 100
+    : 0;
 
   const annualProgress = dashboard ? getProgressPercent(dashboard.totalHours, dashboard.annualGoal) : 0;
   const isGrade10 = dashboard?.grade === 10;
@@ -205,9 +208,6 @@ export default function DashboardPage() {
                 <Card className="shadow-lg border-card-border bg-card">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-xl font-display">Monthly Activity</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Slide to see your HW Center, Tutorial, and total hours by month.
-                    </p>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {dashboard.monthlyHours?.length > 0 && (
@@ -221,6 +221,9 @@ export default function DashboardPage() {
                           max={dashboard.monthlyHours.length - 1}
                           step={1}
                           value={Math.max(0, selectedMonthIndex)}
+                          style={{
+                            background: `linear-gradient(to right, hsl(var(--primary)) ${monthProgress}%, hsl(var(--muted)) ${monthProgress}%)`,
+                          }}
                           aria-valuetext={selectedMonthData?.month}
                           onChange={(event) => {
                             const month = dashboard.monthlyHours[Number(event.currentTarget.value)];
