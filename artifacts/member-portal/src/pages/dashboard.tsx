@@ -214,24 +214,20 @@ export default function DashboardPage() {
               <section className="min-h-[calc(100dvh-4rem)] rounded-t-[48px] bg-primary pt-10 pb-12 text-white sm:rounded-t-[88px] md:pt-14">
                 <div className="mx-auto max-w-5xl space-y-5 px-4">
                 <Card className="border-0 shadow-none bg-transparent text-white">
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-3 text-center">
                     <CardTitle className="text-xl font-display text-white">Monthly Activity</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {dashboard.monthlyHours?.length > 0 && (
-                      <div className="relative">
+                      <div className="relative pt-[72px]">
                         <label htmlFor="month-slider" className="sr-only">Select activity month</label>
                         <div
                           aria-hidden="true"
-                          className="relative left-1/2 mb-8 flex h-12 w-screen -translate-x-1/2 items-center justify-center bg-[#061747] px-3 text-base font-bold text-white"
+                          className="absolute top-0 z-10 flex h-11 min-w-16 -translate-x-1/2 items-center justify-center rounded-xl bg-[#061747] px-3 text-base font-bold text-white after:absolute after:-bottom-2 after:left-1/2 after:h-4 after:w-4 after:-translate-x-1/2 after:rotate-45 after:rounded-sm after:bg-[#061747]"
+                          style={{ left: sliderPosition }}
                         >
-                          {selectedMonthData?.month}
+                          <span className="relative z-10">{selectedMonthData?.shortLabel}</span>
                         </div>
-                        <span
-                          aria-hidden="true"
-                          className="absolute top-10 h-4 w-4 rounded-sm bg-[#061747]"
-                          style={{ left: sliderPosition, transform: "translateX(-50%) rotate(45deg)" }}
-                        />
                         <input
                           id="month-slider"
                           className="month-slider"
