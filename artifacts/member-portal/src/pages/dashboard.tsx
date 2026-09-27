@@ -173,7 +173,7 @@ export default function DashboardPage() {
                   Member Dashboard
                 </p>
                 <h2 className="mt-1 text-4xl md:text-5xl font-display font-bold text-foreground" data-testid="text-display-name">
-                  Hello, {dashboard?.displayName?.split(" ")[0] || user.username}
+                  Hey, {dashboard?.displayName?.split(" ")[0] || user.username}
                 </h2>
                 <p className="mt-2 text-muted-foreground">
                   {dashboard ? `Grade ${dashboard.grade}` : "Loading member data"}
@@ -242,8 +242,8 @@ export default function DashboardPage() {
             </div>
 
             {dashboard && (
-              <section ref={blueSectionRef} className="monthly-activity-section relative z-[1] min-h-[calc(100dvh-4rem)] bg-primary pb-12 pt-16 text-white md:pt-24">
-                <div className="mx-auto max-w-5xl space-y-5 px-4">
+              <section ref={blueSectionRef} className="monthly-activity-section relative z-[1] flex min-h-[calc(100dvh-4rem)] flex-col bg-primary pb-4 pt-16 text-white md:pt-24">
+                <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4">
                 <Card className="border-0 shadow-none bg-transparent text-white">
                   <CardHeader className="pb-3 text-center">
                     <CardTitle className="whitespace-nowrap font-display text-[clamp(1.5rem,7.2vw,3rem)] font-bold leading-tight text-white md:text-5xl">Monthly Activity</CardTitle>
@@ -296,29 +296,31 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="mx-auto max-w-2xl border-0 bg-white/10 text-white shadow-none">
-                  <CardContent className="grid grid-cols-2 divide-x divide-white/20 p-2 sm:p-4">
-                    <StatusCard
-                      icon={<ClipboardList className="w-5 h-5" />}
-                      label="Info Form"
-                      complete={dashboard.infoFormComplete}
-                      completeText="Complete"
-                      incompleteText="Missing"
-                    />
-                    <StatusCard
-                      icon={<CircleDollarSign className="w-5 h-5" />}
-                      label="Club Dues"
-                      complete={dashboard.clubDuesPaid}
-                      completeText="Paid"
-                      incompleteText="Unpaid"
-                    />
-                  </CardContent>
-                </Card>
+                <div className="mt-auto pt-8">
+                  <Card className="mx-auto max-w-2xl border-0 bg-white/10 text-white shadow-none">
+                    <CardContent className="grid grid-cols-2 divide-x divide-white/20 p-2 sm:p-4">
+                      <StatusCard
+                        icon={<ClipboardList className="w-5 h-5" />}
+                        label="Info Form"
+                        complete={dashboard.infoFormComplete}
+                        completeText="Complete"
+                        incompleteText="Missing"
+                      />
+                      <StatusCard
+                        icon={<CircleDollarSign className="w-5 h-5" />}
+                        label="Club Dues"
+                        complete={dashboard.clubDuesPaid}
+                        completeText="Paid"
+                        incompleteText="Unpaid"
+                      />
+                    </CardContent>
+                  </Card>
 
-                <div className="w-full p-5 text-center text-white/75">
-                  <p className="text-sm font-medium" data-testid="text-help-footer">
-                    Contact NHS officers for questions about your hours
-                  </p>
+                  <div className="w-full pt-4 text-center text-white/75">
+                    <p className="text-sm font-medium" data-testid="text-help-footer">
+                      Contact NHS officers for questions about your hours
+                    </p>
+                  </div>
                 </div>
                 </div>
               </section>
