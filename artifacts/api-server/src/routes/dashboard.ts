@@ -4,6 +4,7 @@ import { adminMessagesTable, db, membersTable } from "@workspace/db";
 import { GetDashboardResponse, GetLifetimeHoursResponse } from "@workspace/api-zod";
 import { getMemberFromSheet } from "../lib/sheets";
 import { getPreviousYearHours } from "../lib/previous-year-hours";
+import { countActivities, sumActivityHours } from "../lib/activity-hours";
 
 const router: IRouter = Router();
 
@@ -77,13 +78,16 @@ router.get("/dashboard/lifetime-hours", async (req, res): Promise<void> => {
   // Only returning seniors can have 11th-grade hours from the previous sheet.
   const previous = currentMember.grade === 12
     ? await getPreviousYearHours(currentMember.studentId)
-    : { hours: 0, found: false };
+    : { hours: 0, found: false, hwCenterHours: 0, tutorialHours: 0 };
+  const currentActivity = sumActivityHours(currentMember.monthlyHours);
+  const activityCounts = countActivities(currentActivity, previous);
 
   res.json(GetLifetimeHoursResponse.parse({
     currentYearHours: currentMember.hours,
     previousYearHours: previous.hours,
     totalHours: Math.round((currentMember.hours + previous.hours) * 100) / 100,
     hasPreviousYear: previous.found,
+    ...activityCounts,
   }));
 });
 

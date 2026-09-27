@@ -90,7 +90,9 @@ export const GetLifetimeHoursResponse = zod.object({
   "currentYearHours": zod.number(),
   "previousYearHours": zod.number(),
   "totalHours": zod.number(),
-  "hasPreviousYear": zod.boolean()
+  "hasPreviousYear": zod.boolean(),
+  "hwCenterShifts": zod.number().describe('Total HW Center hours across available years; one hour is one shift.'),
+  "tutorialsAttended": zod.number().describe('Total tutorial hours across available years multiplied by two.')
 })
 
 

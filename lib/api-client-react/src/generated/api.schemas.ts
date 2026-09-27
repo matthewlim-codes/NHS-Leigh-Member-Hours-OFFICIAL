@@ -74,6 +74,10 @@ export interface LifetimeHoursData {
   previousYearHours: number;
   totalHours: number;
   hasPreviousYear: boolean;
+  /** Total HW Center hours across available years; one hour is one shift. */
+  hwCenterShifts: number;
+  /** Total tutorial hours across available years multiplied by two. */
+  tutorialsAttended: number;
 }
 
 export interface SuccessResponse {

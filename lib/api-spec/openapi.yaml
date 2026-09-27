@@ -224,7 +224,7 @@ components:
 
     LifetimeHoursData:
       type: object
-      required: [currentYearHours, previousYearHours, totalHours, hasPreviousYear]
+      required: [currentYearHours, previousYearHours, totalHours, hasPreviousYear, hwCenterShifts, tutorialsAttended]
       properties:
         currentYearHours:
           type: number
@@ -234,6 +234,12 @@ components:
           type: number
         hasPreviousYear:
           type: boolean
+        hwCenterShifts:
+          type: number
+          description: Total HW Center hours across available years; one hour is one shift.
+        tutorialsAttended:
+          type: number
+          description: Total tutorial hours across available years multiplied by two.
 
     MonthlyHours:
       type: object
