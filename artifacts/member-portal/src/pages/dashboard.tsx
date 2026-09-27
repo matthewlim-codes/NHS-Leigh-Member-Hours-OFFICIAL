@@ -136,7 +136,8 @@ export default function DashboardPage() {
           </Alert>
         ) : (
           <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="mx-auto max-w-5xl space-y-5 px-4 py-6 md:py-10">
+            <div className="sticky top-16 z-0 bg-background">
+              <div className="mx-auto max-w-5xl space-y-5 px-4 py-6 md:py-10">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground" data-testid="text-welcome-greeting">
@@ -208,14 +209,15 @@ export default function DashboardPage() {
                 )}
               </>
             )}
+              </div>
             </div>
 
             {dashboard && (
-              <section className="monthly-activity-section min-h-[calc(100dvh-4rem)] bg-primary pb-12 pt-28 text-white md:pt-40">
+              <section className="monthly-activity-section relative z-[1] min-h-[calc(100dvh-4rem)] bg-primary pb-12 pt-16 text-white md:pt-24">
                 <div className="mx-auto max-w-5xl space-y-5 px-4">
                 <Card className="border-0 shadow-none bg-transparent text-white">
                   <CardHeader className="pb-3 text-center">
-                    <CardTitle className="text-4xl font-display font-bold text-white md:text-5xl">Monthly Activity</CardTitle>
+                    <CardTitle className="whitespace-nowrap font-display text-[clamp(1.5rem,7.2vw,3rem)] font-bold leading-tight text-white md:text-5xl">Monthly Activity</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {dashboard.monthlyHours?.length > 0 && (
