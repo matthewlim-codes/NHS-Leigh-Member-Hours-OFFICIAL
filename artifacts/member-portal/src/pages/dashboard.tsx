@@ -120,12 +120,20 @@ export default function DashboardPage() {
     const drag = arrowDrag.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
     arrowDrag.current = null;
-    setDragDistance(0);
-    if (!drag.active) return;
+    if (!drag.active) {
+      setDragDistance(0);
+      return;
+    }
     // A release after dragging can also fire a click; don't let a short drag open the page.
     suppressArrowClick.current = true;
     window.setTimeout(() => { suppressArrowClick.current = false; }, 350);
-    if (!cancelled && drag.distance >= 72) setLocation("/lifetime");
+    if (!cancelled && drag.distance >= 72) {
+      // Keep the page at the dragged position until the route opens, then animate the rest of the way.
+      setLocation("/lifetime");
+      requestAnimationFrame(() => setDragDistance(0));
+    } else {
+      setDragDistance(0);
+    }
   };
 
   useEffect(() => {
@@ -397,7 +405,8 @@ export default function DashboardPage() {
           onPointerMove={handleArrowPointerMove}
           onPointerUp={finishArrowDrag}
           onPointerCancel={(event) => finishArrowDrag(event, true)}
-          className={`fixed right-0 top-1/2 z-20 -translate-y-1/2 rounded-l-full bg-primary px-2 py-5 text-white shadow-lg transition-[padding,opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none hover:pl-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${isLifetimeOpen ? "pointer-events-none opacity-0" : ""}`}
+          onLostPointerCapture={(event) => finishArrowDrag(event, true)}
+          className={`fixed right-0 top-1/2 ${dragDistance > 0 ? "z-[60]" : "z-20"} -translate-y-1/2 rounded-l-full bg-primary px-2 py-5 text-white shadow-lg transition-[padding,opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none hover:pl-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${isLifetimeOpen ? "pointer-events-none opacity-0" : ""}`}
           style={{
             touchAction: "pan-y",
             transform: dragDistance > 0 ? `translate3d(-${dragDistance}px, -50%, 0)` : undefined,
