@@ -111,6 +111,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /dashboard/lifetime-hours:
+    get:
+      operationId: getLifetimeHours
+      tags: [dashboard]
+      summary: Get the current member's hours across the current and previous school years
+      responses:
+        "200":
+          description: Lifetime hours for the authenticated member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LifetimeHoursData"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Member not found in current spreadsheet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -127,23 +152,26 @@ components:
       properties:
         username:
           type: string
+          minLength: 1
         role:
           type: string
           enum: [member, admin]
           description: Account role. Defaults to member for student logins.
-          minLength: 1
         password:
           type: string
           minLength: 1
 
     AuthUser:
       type: object
-      required: [id, username]
+      required: [id, username, role]
       properties:
         id:
           type: integer
         username:
           type: string
+        role:
+          type: string
+          enum: [member, admin]
 
     DashboardData:
       type: object
@@ -193,6 +221,19 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MonthlyHours"
+
+    LifetimeHoursData:
+      type: object
+      required: [currentYearHours, previousYearHours, totalHours, hasPreviousYear]
+      properties:
+        currentYearHours:
+          type: number
+        previousYearHours:
+          type: number
+        totalHours:
+          type: number
+        hasPreviousYear:
+          type: boolean
 
     MonthlyHours:
       type: object

@@ -24,6 +24,7 @@ import type {
   DashboardData,
   ErrorResponse,
   HealthStatus,
+  LifetimeHoursData,
   LoginInput,
   SuccessResponse
 } from './api.schemas';
@@ -401,6 +402,83 @@ export function useGetDashboard<TData = Awaited<ReturnType<typeof getDashboard>>
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetDashboardQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetLifetimeHoursUrl = () => {
+
+
+
+
+  return `/api/dashboard/lifetime-hours`
+}
+
+/**
+ * @summary Get the current member's hours across the current and previous school years
+ */
+export const getLifetimeHours = async ( options?: RequestInit): Promise<LifetimeHoursData> => {
+
+  return customFetch<LifetimeHoursData>(getGetLifetimeHoursUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLifetimeHoursQueryKey = () => {
+    return [
+    `/api/dashboard/lifetime-hours`
+    ] as const;
+    }
+
+
+export const getGetLifetimeHoursQueryOptions = <TData = Awaited<ReturnType<typeof getLifetimeHours>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLifetimeHours>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLifetimeHoursQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLifetimeHours>>> = ({ signal }) => getLifetimeHours({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLifetimeHours>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLifetimeHoursQueryResult = NonNullable<Awaited<ReturnType<typeof getLifetimeHours>>>
+export type GetLifetimeHoursQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get the current member's hours across the current and previous school years
+ */
+
+export function useGetLifetimeHours<TData = Awaited<ReturnType<typeof getLifetimeHours>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLifetimeHours>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLifetimeHoursQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

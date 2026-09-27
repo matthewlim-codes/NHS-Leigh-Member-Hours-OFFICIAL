@@ -26,13 +26,14 @@ export const HealthCheckResponse = zod.object({
 
 export const LoginBody = zod.object({
   "username": zod.string().min(1),
+  "role": zod.enum(['member', 'admin']).optional().describe('Account role. Defaults to member for student logins.'),
   "password": zod.string().min(1)
 })
 
 export const LoginResponse = zod.object({
   "id": zod.number(),
   "username": zod.string(),
-  "role": zod.enum(["member", "admin"]).optional()
+  "role": zod.enum(['member', 'admin'])
 })
 
 
@@ -50,7 +51,7 @@ export const LogoutResponse = zod.object({
 export const GetMeResponse = zod.object({
   "id": zod.number(),
   "username": zod.string(),
-  "role": zod.enum(["member", "admin"]).optional()
+  "role": zod.enum(['member', 'admin'])
 })
 
 
@@ -79,6 +80,17 @@ export const GetDashboardResponse = zod.object({
   "total": zod.number(),
   "hasData": zod.boolean()
 }))
+})
+
+
+/**
+ * @summary Get the current member's hours across the current and previous school years
+ */
+export const GetLifetimeHoursResponse = zod.object({
+  "currentYearHours": zod.number(),
+  "previousYearHours": zod.number(),
+  "totalHours": zod.number(),
+  "hasPreviousYear": zod.boolean()
 })
 
 

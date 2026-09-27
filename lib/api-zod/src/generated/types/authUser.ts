@@ -5,10 +5,10 @@
  * NHS (Leigh) Member Hour Tracker API
  * OpenAPI spec version: 0.1.0
  */
+import type { AuthUserRole } from './authUserRole';
 
 export interface AuthUser {
   id: number;
   username: string;
-  /** Account role. Defaults to member for student logins. */
-  role?: "member" | "admin";
+  role: AuthUserRole;
 }

@@ -31,7 +31,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
     if (isSuccess && user) {
       if (user.role === "admin") {
-        if (location === "/login" || location === "/" || location === "/dashboard") {
+        if (location === "/login" || location === "/" || location === "/dashboard" || location === "/lifetime") {
           setLocation("/admin");
         }
         return;
@@ -55,10 +55,15 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 function Router() {
+  const [location] = useLocation();
+  // Keep the dashboard mounted so the lifetime page can slide over it.
+  if (location === "/dashboard" || location === "/lifetime") {
+    return <DashboardPage />;
+  }
+
   return (
     <Switch>
       <Route path="/login" component={LoginPage} />
-      <Route path="/dashboard" component={DashboardPage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/" component={() => null} />
       <Route component={NotFound} />

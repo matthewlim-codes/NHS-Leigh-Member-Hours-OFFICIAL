@@ -9,18 +9,38 @@ export interface HealthStatus {
   status: string;
 }
 
+/**
+ * Account role. Defaults to member for student logins.
+ */
+export type LoginInputRole = typeof LoginInputRole[keyof typeof LoginInputRole];
+
+
+export const LoginInputRole = {
+  member: 'member',
+  admin: 'admin',
+} as const;
+
 export interface LoginInput {
   /** @minLength 1 */
   username: string;
+  /** Account role. Defaults to member for student logins. */
+  role?: LoginInputRole;
   /** @minLength 1 */
   password: string;
 }
 
+export type AuthUserRole = typeof AuthUserRole[keyof typeof AuthUserRole];
+
+
+export const AuthUserRole = {
+  member: 'member',
+  admin: 'admin',
+} as const;
+
 export interface AuthUser {
   id: number;
   username: string;
-  /** Account role. Defaults to member for student logins. */
-  role?: "member" | "admin";
+  role: AuthUserRole;
 }
 
 export interface MonthlyHours {
@@ -47,6 +67,13 @@ export interface DashboardData {
   semester2Goal: number;
   semester2Remaining: number;
   monthlyHours: MonthlyHours[];
+}
+
+export interface LifetimeHoursData {
+  currentYearHours: number;
+  previousYearHours: number;
+  totalHours: number;
+  hasPreviousYear: boolean;
 }
 
 export interface SuccessResponse {

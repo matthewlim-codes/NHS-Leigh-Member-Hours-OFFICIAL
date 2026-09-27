@@ -7,9 +7,12 @@
  */
 
 export * from './authUser';
+export * from './authUserRole';
 export * from './dashboardData';
 export * from './errorResponse';
 export * from './healthStatus';
+export * from './lifetimeHoursData';
 export * from './loginInput';
+export * from './loginInputRole';
 export * from './monthlyHours';
 export * from './successResponse';

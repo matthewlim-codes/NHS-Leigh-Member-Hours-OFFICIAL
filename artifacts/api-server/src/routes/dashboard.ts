@@ -1,8 +1,9 @@
 import { Router, type IRouter } from "express";
 import { desc, eq } from "drizzle-orm";
 import { adminMessagesTable, db, membersTable } from "@workspace/db";
-import { GetDashboardResponse } from "@workspace/api-zod";
+import { GetDashboardResponse, GetLifetimeHoursResponse } from "@workspace/api-zod";
 import { getMemberFromSheet } from "../lib/sheets";
+import { getPreviousYearHours } from "../lib/previous-year-hours";
 
 const router: IRouter = Router();
 
@@ -52,6 +53,37 @@ router.get("/dashboard", async (req, res): Promise<void> => {
       sheetMember.grade === 11
         ? sheetMember.monthlyHours.filter((month) => JUNIOR_MONTHS.has(month.month))
         : sheetMember.monthlyHours,
+  }));
+});
+
+router.get("/dashboard/lifetime-hours", async (req, res): Promise<void> => {
+  if (!req.session.userId) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  const [member] = await db.select().from(membersTable).where(eq(membersTable.id, req.session.userId));
+  if (!member) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  const currentMember = await getMemberFromSheet(member.username);
+  if (!currentMember) {
+    res.status(404).json({ error: "Your record was not found in the current spreadsheet." });
+    return;
+  }
+
+  // Only returning seniors can have 11th-grade hours from the previous sheet.
+  const previous = currentMember.grade === 12
+    ? await getPreviousYearHours(currentMember.studentId)
+    : { hours: 0, found: false };
+
+  res.json(GetLifetimeHoursResponse.parse({
+    currentYearHours: currentMember.hours,
+    previousYearHours: previous.hours,
+    totalHours: Math.round((currentMember.hours + previous.hours) * 100) / 100,
+    hasPreviousYear: previous.found,
   }));
 });
 

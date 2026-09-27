@@ -1,13 +1,14 @@
 import { useGetMe, getGetMeQueryKey, useGetDashboard, getGetDashboardQueryKey, useLogout } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type TouchEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { LogOut, AlertCircle, CalendarClock, CheckCircle2, CircleDollarSign, ClipboardList, XCircle } from "lucide-react";
+import { LogOut, AlertCircle, CalendarClock, CheckCircle2, ChevronLeft, CircleDollarSign, ClipboardList, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
+import LifetimeHoursPanel from "@/components/lifetime-hours-panel";
 
 interface SheetStatus {
   updatedAt: string | null;
@@ -26,8 +27,10 @@ async function getSheetStatus(): Promise<SheetStatus> {
 }
 
 export default function DashboardPage() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  const isLifetimeOpen = location === "/lifetime";
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const [selectedMonth, setSelectedMonth] = useState("October");
   const [freezeTop, setFreezeTop] = useState(64);
   const whiteSectionRef = useRef<HTMLDivElement>(null);
@@ -72,6 +75,25 @@ export default function DashboardPage() {
         setLocation("/login");
       }
     });
+  };
+
+  const handleDashboardTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    if (isLifetimeOpen || (event.target instanceof Element && event.target.closest("input, button, a, select, textarea"))) {
+      touchStart.current = null;
+      return;
+    }
+    touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+  };
+
+  const handleDashboardTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start || isLifetimeOpen) return;
+    const deltaX = event.changedTouches[0].clientX - start.x;
+    const deltaY = event.changedTouches[0].clientY - start.y;
+    if (deltaX < -70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
+      setLocation("/lifetime");
+    }
   };
 
   useEffect(() => {
@@ -134,7 +156,14 @@ export default function DashboardPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-[100dvh] flex flex-col overflow-x-clip bg-background">
+    <>
+    <div
+      className="min-h-[100dvh] flex flex-col overflow-x-clip bg-background"
+      onTouchStart={handleDashboardTouchStart}
+      onTouchEnd={handleDashboardTouchEnd}
+      inert={isLifetimeOpen}
+      aria-hidden={isLifetimeOpen}
+    >
       <header className="bg-card sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <h1 className="font-bold text-lg text-foreground">
@@ -188,16 +217,10 @@ export default function DashboardPage() {
               <>
                 <Card className="shadow-lg border-0 bg-card overflow-hidden">
                   <CardContent className="p-6 md:p-8">
-                    <div className="flex items-center justify-between gap-4 mb-3">
+                    <div className="mb-3">
                       <div>
-                        <p className="text-sm font-semibold text-foreground">Hour Goal</p>
-                        <p className="text-sm text-muted-foreground">
-                          Annual progress toward your requirement
-                        </p>
+                        <p className="text-sm font-semibold text-foreground">Annual Hour Goal</p>
                       </div>
-                      <p className="text-sm text-muted-foreground whitespace-nowrap">
-                        {formatHours(dashboard.totalHours)} of {formatHours(dashboard.annualGoal)}
-                      </p>
                     </div>
 
                     <div className="h-4 rounded-full bg-muted overflow-hidden">
@@ -327,6 +350,24 @@ export default function DashboardPage() {
         )}
       </main>
     </div>
+    {dashboard && (
+      <>
+        <button
+          type="button"
+          onClick={() => setLocation("/lifetime")}
+          className={`fixed right-0 top-1/2 z-20 -translate-y-1/2 rounded-l-full bg-primary px-2 py-5 text-white shadow-lg transition-[padding,opacity] hover:pl-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${isLifetimeOpen ? "pointer-events-none opacity-0" : ""}`}
+          aria-label="View lifetime hours"
+          aria-hidden={isLifetimeOpen}
+          tabIndex={isLifetimeOpen ? -1 : 0}
+          title="View lifetime hours"
+          data-testid="button-lifetime-hours"
+        >
+          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+        </button>
+        <LifetimeHoursPanel open={isLifetimeOpen} onClose={() => setLocation("/dashboard")} eligibleForPreviousYear={dashboard.grade === 12} />
+      </>
+    )}
+    </>
   );
 }
 
