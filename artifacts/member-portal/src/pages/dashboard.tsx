@@ -409,7 +409,7 @@ export default function DashboardPage() {
           className={`fixed right-0 top-1/2 ${dragDistance > 0 ? "z-[60]" : "z-20"} -translate-y-1/2 rounded-l-full bg-primary px-2 py-5 text-white shadow-lg transition-[padding,opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none hover:pl-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${isLifetimeOpen ? "pointer-events-none opacity-0" : ""}`}
           style={{
             touchAction: "pan-y",
-            transform: dragDistance > 0 ? `translate3d(-${dragDistance}px, -50%, 0)` : undefined,
+            transform: dragDistance > 0 ? `translateX(-${dragDistance}px)` : undefined,
             transition: dragDistance > 0 ? "none" : undefined,
           }}
           aria-label="View lifetime hours"
