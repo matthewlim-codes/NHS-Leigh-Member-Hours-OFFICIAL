@@ -167,23 +167,21 @@ export default function DashboardPage() {
           <div className="flex w-full flex-1 flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div ref={whiteSectionRef} className="sticky z-0 bg-background" style={{ top: freezeTop }}>
               <div className="mx-auto max-w-5xl space-y-5 px-4 py-6 md:py-10">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground" data-testid="text-welcome-greeting">
+            <div>
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm uppercase tracking-normal text-muted-foreground" data-testid="text-welcome-greeting">
                   Member Dashboard
                 </p>
-                <h2 className="mt-1 text-4xl md:text-5xl font-display font-bold text-foreground" data-testid="text-display-name">
-                  Hey, {dashboard?.displayName?.split(" ")[0] || user.username}
-                </h2>
-                <p className="mt-2 text-muted-foreground">
-                  {dashboard ? `Grade ${dashboard.grade}` : "Loading member data"}
-                </p>
-                <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-primary">
-                  <CalendarClock className="h-4 w-4" />
-                  Hours last updated on:{" "}
-                  {sheetStatus?.updatedAt ? formatUpdatedAt(sheetStatus.updatedAt) : "Not yet recorded"}
-                </p>
+                {dashboard && <p className="shrink-0 text-sm text-muted-foreground">Grade {dashboard.grade}</p>}
               </div>
+              <h2 className="mt-1 text-4xl md:text-5xl font-display font-bold text-foreground" data-testid="text-display-name">
+                Hey, {dashboard?.displayName?.split(" ")[0] || user.username}
+              </h2>
+              <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-primary">
+                <CalendarClock className="h-4 w-4" />
+                Hours last updated on:{" "}
+                {sheetStatus?.updatedAt ? formatUpdatedAt(sheetStatus.updatedAt) : "Not yet recorded"}
+              </p>
             </div>
 
             {dashboard && (
