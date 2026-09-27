@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type TouchEvent } from "react";
 type LifetimeHoursPanelProps = {
   open: boolean;
   onClose: () => void;
+  dragDistance?: number;
   /** Pass dashboard.grade === 12; omitted/false never assumes prior-year eligibility. */
   eligibleForPreviousYear?: boolean;
 };
@@ -88,7 +89,7 @@ function RollingHours({ value, open }: { value: number; open: boolean }) {
   );
 }
 
-export default function LifetimeHoursPanel({ open, onClose, eligibleForPreviousYear = false }: LifetimeHoursPanelProps) {
+export default function LifetimeHoursPanel({ open, onClose, dragDistance = 0, eligibleForPreviousYear = false }: LifetimeHoursPanelProps) {
   const panelRef = useRef<HTMLElement>(null);
   const backRef = useRef<HTMLButtonElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -175,9 +176,10 @@ export default function LifetimeHoursPanel({ open, onClose, eligibleForPreviousY
       inert={!open}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
-      className={`fixed inset-0 z-50 min-h-[100dvh] overflow-y-auto overscroll-contain bg-[#faf9f6] text-[#172544] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+      className={`fixed inset-0 z-50 min-h-[100dvh] overflow-y-auto overscroll-contain bg-[#faf9f6] text-[#172544] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${dragDistance > 0 ? "!transition-none" : ""} ${
         open ? "translate-x-0" : "pointer-events-none translate-x-full"
       }`}
+      style={dragDistance > 0 && !open ? { transform: `translateX(calc(100% - ${dragDistance}px))` } : undefined}
     >
       <div className="min-h-[100dvh]">
         <header className="relative z-10 border-b border-[#e7e9ef] bg-[#faf9f6]">

@@ -1,7 +1,7 @@
 import { useGetMe, getGetMeQueryKey, useGetDashboard, getGetDashboardQueryKey, useLogout } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type TouchEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent, type ReactNode, type TouchEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { LogOut, AlertCircle, CalendarClock, CheckCircle2, ChevronLeft, CircleDollarSign, ClipboardList, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +31,9 @@ export default function DashboardPage() {
   const queryClient = useQueryClient();
   const isLifetimeOpen = location === "/lifetime";
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const arrowDrag = useRef<{ pointerId: number; x: number; y: number; distance: number; active: boolean } | null>(null);
+  const suppressArrowClick = useRef(false);
+  const [dragDistance, setDragDistance] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState("October");
   const [freezeTop, setFreezeTop] = useState(64);
   const whiteSectionRef = useRef<HTMLDivElement>(null);
@@ -94,6 +97,35 @@ export default function DashboardPage() {
     if (deltaX < -70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
       setLocation("/lifetime");
     }
+  };
+
+  const handleArrowPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.button !== 0 || isLifetimeOpen) return;
+    arrowDrag.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, distance: 0, active: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleArrowPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
+    const drag = arrowDrag.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const dx = drag.x - event.clientX;
+    const dy = drag.y - event.clientY;
+    if (!drag.active && (dx < 6 || dx < Math.abs(dy) * 1.2)) return;
+    drag.active = true;
+    drag.distance = Math.max(0, Math.min(window.innerWidth, dx));
+    setDragDistance(drag.distance);
+  };
+
+  const finishArrowDrag = (event: PointerEvent<HTMLButtonElement>, cancelled = false) => {
+    const drag = arrowDrag.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    arrowDrag.current = null;
+    setDragDistance(0);
+    if (!drag.active) return;
+    // A release after dragging can also fire a click; don't let a short drag open the page.
+    suppressArrowClick.current = true;
+    window.setTimeout(() => { suppressArrowClick.current = false; }, 350);
+    if (!cancelled && drag.distance >= 72) setLocation("/lifetime");
   };
 
   useEffect(() => {
@@ -354,8 +386,23 @@ export default function DashboardPage() {
       <>
         <button
           type="button"
-          onClick={() => setLocation("/lifetime")}
-          className={`fixed right-0 top-1/2 z-20 -translate-y-1/2 rounded-l-full bg-primary px-2 py-5 text-white shadow-lg transition-[padding,opacity] hover:pl-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${isLifetimeOpen ? "pointer-events-none opacity-0" : ""}`}
+          onClick={() => {
+            if (suppressArrowClick.current) {
+              suppressArrowClick.current = false;
+              return;
+            }
+            setLocation("/lifetime");
+          }}
+          onPointerDown={handleArrowPointerDown}
+          onPointerMove={handleArrowPointerMove}
+          onPointerUp={finishArrowDrag}
+          onPointerCancel={(event) => finishArrowDrag(event, true)}
+          className={`fixed right-0 top-1/2 z-20 -translate-y-1/2 rounded-l-full bg-primary px-2 py-5 text-white shadow-lg transition-[padding,opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none hover:pl-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${isLifetimeOpen ? "pointer-events-none opacity-0" : ""}`}
+          style={{
+            touchAction: "pan-y",
+            transform: dragDistance > 0 ? `translate3d(-${dragDistance}px, -50%, 0)` : undefined,
+            transition: dragDistance > 0 ? "none" : undefined,
+          }}
           aria-label="View lifetime hours"
           aria-hidden={isLifetimeOpen}
           tabIndex={isLifetimeOpen ? -1 : 0}
@@ -364,7 +411,12 @@ export default function DashboardPage() {
         >
           <ChevronLeft className="h-5 w-5" aria-hidden="true" />
         </button>
-        <LifetimeHoursPanel open={isLifetimeOpen} onClose={() => setLocation("/dashboard")} eligibleForPreviousYear={dashboard.grade === 12} />
+        <LifetimeHoursPanel
+          open={isLifetimeOpen}
+          onClose={() => setLocation("/dashboard")}
+          eligibleForPreviousYear={dashboard.grade === 12}
+          dragDistance={dragDistance}
+        />
       </>
     )}
     </>
