@@ -287,22 +287,10 @@ export default function DashboardPage() {
                     )}
 
                     {selectedMonthData && (
-                      <div className="rounded-2xl bg-white/10 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <h3 className="text-2xl font-display font-bold text-white">
-                              {selectedMonthData.month}
-                            </h3>
-                          </div>
-                          <div className="rounded-full bg-white px-4 py-2 text-sm font-bold text-primary">
-                            {formatHours(selectedMonthData.total)} total
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 mt-4">
-                          <MonthDetail label="HW Center" value={selectedMonthData.hwCenter} />
-                          <MonthDetail label="Tutorial" value={selectedMonthData.tutorial} />
-                        </div>
+                      <div className="grid grid-cols-3 gap-2 pt-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <MonthDetail label="HW Center" value={selectedMonthData.hwCenter} />
+                        <MonthDetail label="Tutorial" value={selectedMonthData.tutorial} />
+                        <MonthDetail label="Total" value={formatHours(selectedMonthData.total)} />
                       </div>
                     )}
                   </CardContent>
@@ -426,8 +414,8 @@ function ProgressCard({
 
 function MonthDetail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-white/10 p-3">
-      <p className="text-xs uppercase tracking-[0.14em] text-white/75">{label}</p>
+    <div className="min-w-0 p-2 text-center">
+      <p className="whitespace-nowrap text-[10px] uppercase tracking-[0.08em] text-white/75 sm:text-xs sm:tracking-[0.14em]">{label}</p>
       <p className="mt-1 text-xl font-display font-bold text-white">{value}</p>
     </div>
   );
