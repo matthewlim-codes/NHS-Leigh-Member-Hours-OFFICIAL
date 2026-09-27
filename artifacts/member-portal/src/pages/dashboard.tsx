@@ -252,9 +252,6 @@ export default function DashboardPage() {
                       <div className="rounded-2xl bg-primary/5 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-                              Selected Month
-                            </p>
                             <h3 className="text-2xl font-display font-bold text-foreground">
                               {selectedMonthData.month}
                             </h3>
