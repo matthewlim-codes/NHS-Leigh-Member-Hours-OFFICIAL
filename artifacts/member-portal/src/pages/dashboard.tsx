@@ -1,7 +1,7 @@
 import { useGetMe, getGetMeQueryKey, useGetDashboard, getGetDashboardQueryKey, useLogout } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { LogOut, AlertCircle, CalendarClock, CheckCircle2, CircleDollarSign, ClipboardList, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +29,10 @@ export default function DashboardPage() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const [selectedMonth, setSelectedMonth] = useState("October");
+  const [freezeTop, setFreezeTop] = useState(64);
+  const whiteSectionRef = useRef<HTMLDivElement>(null);
+  const blueSectionRef = useRef<HTMLElement>(null);
+  const sliderRegionRef = useRef<HTMLDivElement>(null);
 
   const { data: user, isError: isAuthError, isSuccess: isAuthSuccess, isLoading: isAuthLoading } = useGetMe({
     query: {
@@ -80,6 +84,31 @@ export default function DashboardPage() {
 
       return dashboard.monthlyHours?.find((month) => month.hasData)?.month ?? "October";
     });
+  }, [dashboard]);
+
+  useLayoutEffect(() => {
+    const whiteSection = whiteSectionRef.current;
+    const blueSection = blueSectionRef.current;
+    const sliderRegion = sliderRegionRef.current;
+    if (!whiteSection || !blueSection || !sliderRegion) return;
+
+    const updateFreezePoint = () => {
+      const sliderBottomWithinBlue =
+        sliderRegion.getBoundingClientRect().bottom - blueSection.getBoundingClientRect().top;
+      // Pin the white section only after the whole heading and slider reach the viewport.
+      setFreezeTop(Math.min(64, window.innerHeight - whiteSection.getBoundingClientRect().height - sliderBottomWithinBlue));
+    };
+
+    updateFreezePoint();
+    const observer = new ResizeObserver(updateFreezePoint);
+    observer.observe(whiteSection);
+    observer.observe(blueSection);
+    observer.observe(sliderRegion);
+    window.addEventListener("resize", updateFreezePoint);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateFreezePoint);
+    };
   }, [dashboard]);
 
   const selectedMonthData = useMemo(() => {
@@ -136,7 +165,7 @@ export default function DashboardPage() {
           </Alert>
         ) : (
           <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="sticky top-16 z-0 bg-background">
+            <div ref={whiteSectionRef} className="sticky z-0 bg-background" style={{ top: freezeTop }}>
               <div className="mx-auto max-w-5xl space-y-5 px-4 py-6 md:py-10">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -213,7 +242,7 @@ export default function DashboardPage() {
             </div>
 
             {dashboard && (
-              <section className="monthly-activity-section relative z-[1] min-h-[calc(100dvh-4rem)] bg-primary pb-12 pt-16 text-white md:pt-24">
+              <section ref={blueSectionRef} className="monthly-activity-section relative z-[1] min-h-[calc(100dvh-4rem)] bg-primary pb-12 pt-16 text-white md:pt-24">
                 <div className="mx-auto max-w-5xl space-y-5 px-4">
                 <Card className="border-0 shadow-none bg-transparent text-white">
                   <CardHeader className="pb-3 text-center">
@@ -221,7 +250,7 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {dashboard.monthlyHours?.length > 0 && (
-                      <div className="relative pt-[72px]">
+                      <div ref={sliderRegionRef} className="relative pt-[72px]">
                         <label htmlFor="month-slider" className="sr-only">Select activity month</label>
                         <div
                           aria-hidden="true"
