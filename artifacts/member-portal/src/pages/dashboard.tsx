@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { LogOut, AlertCircle, CalendarClock, CheckCircle2, CircleDollarSign, ClipboardList, Clock, XCircle } from "lucide-react";
+import { LogOut, AlertCircle, CalendarClock, CheckCircle2, CircleDollarSign, ClipboardList, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
@@ -89,7 +89,7 @@ export default function DashboardPage() {
   const monthProgress = dashboard?.monthlyHours?.length
     ? (Math.max(0, selectedMonthIndex) / Math.max(1, dashboard.monthlyHours.length - 1)) * 100
     : 0;
-  const sliderPosition = `calc(${monthProgress}% + ${22 - (44 * monthProgress) / 100}px)`;
+  const sliderPosition = `calc(${monthProgress}% + ${17.6 - (35.2 * monthProgress) / 100}px)`;
 
   const annualProgress = dashboard ? getProgressPercent(dashboard.totalHours, dashboard.annualGoal) : 0;
   const isGrade10 = dashboard?.grade === 10;
@@ -105,7 +105,7 @@ export default function DashboardPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-background">
+    <div className="min-h-[100dvh] flex flex-col overflow-x-clip bg-background">
       <header className="bg-card sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <h1 className="font-bold text-lg text-foreground">
@@ -125,9 +125,9 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 py-6 md:py-10">
+      <main className="flex-1 w-full">
         {isDashboardError ? (
-          <Alert variant="destructive" className="max-w-md w-full" data-testid="alert-dashboard-error">
+          <Alert variant="destructive" className="max-w-md w-full mx-auto my-6" data-testid="alert-dashboard-error">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Member not found</AlertTitle>
             <AlertDescription>
@@ -135,7 +135,8 @@ export default function DashboardPage() {
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-5">
+          <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="mx-auto max-w-5xl space-y-5 px-4 py-6 md:py-10">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground" data-testid="text-welcome-greeting">
@@ -205,22 +206,32 @@ export default function DashboardPage() {
                     />
                   </section>
                 )}
+              </>
+            )}
+            </div>
 
-                <Card className="border-0 shadow-none bg-card">
+            {dashboard && (
+              <section className="min-h-[calc(100dvh-4rem)] rounded-t-[48px] bg-primary pt-10 pb-12 text-white sm:rounded-t-[88px] md:pt-14">
+                <div className="mx-auto max-w-5xl space-y-5 px-4">
+                <Card className="border-0 shadow-none bg-transparent text-white">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-xl font-display">Monthly Activity</CardTitle>
+                    <CardTitle className="text-xl font-display text-white">Monthly Activity</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {dashboard.monthlyHours?.length > 0 && (
-                      <div className="relative pt-[72px]">
+                      <div className="relative">
                         <label htmlFor="month-slider" className="sr-only">Select activity month</label>
                         <div
                           aria-hidden="true"
-                          className="absolute top-0 z-10 flex h-11 min-w-16 -translate-x-1/2 items-center justify-center rounded-xl bg-[#232329] px-3 text-base font-bold text-white after:absolute after:-bottom-2 after:left-1/2 after:h-4 after:w-4 after:-translate-x-1/2 after:rotate-45 after:rounded-sm after:bg-[#232329]"
-                          style={{ left: sliderPosition }}
+                          className="relative left-1/2 mb-8 flex h-12 w-screen -translate-x-1/2 items-center justify-center bg-[#061747] px-3 text-base font-bold text-white"
                         >
-                          <span className="relative z-10">{selectedMonthData?.shortLabel}</span>
+                          {selectedMonthData?.month}
                         </div>
+                        <span
+                          aria-hidden="true"
+                          className="absolute top-10 h-4 w-4 rounded-sm bg-[#061747]"
+                          style={{ left: sliderPosition, transform: "translateX(-50%) rotate(45deg)" }}
+                        />
                         <input
                           id="month-slider"
                           className="month-slider"
@@ -241,7 +252,7 @@ export default function DashboardPage() {
                             }
                           }}
                         />
-                        <div className="mt-5 flex justify-between text-xs font-medium text-muted-foreground">
+                        <div className="mt-5 flex justify-between text-xs font-medium text-white/70">
                           <span>{dashboard.monthlyHours[0].shortLabel}</span>
                           <span>{dashboard.monthlyHours[dashboard.monthlyHours.length - 1].shortLabel}</span>
                         </div>
@@ -249,14 +260,14 @@ export default function DashboardPage() {
                     )}
 
                     {selectedMonthData && (
-                      <div className="rounded-2xl bg-primary/5 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="rounded-2xl bg-white/10 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <h3 className="text-2xl font-display font-bold text-foreground">
+                            <h3 className="text-2xl font-display font-bold text-white">
                               {selectedMonthData.month}
                             </h3>
                           </div>
-                          <div className="rounded-full bg-card px-4 py-2 text-sm font-bold text-primary">
+                          <div className="rounded-full bg-white px-4 py-2 text-sm font-bold text-primary">
                             {formatHours(selectedMonthData.total)} total
                           </div>
                         </div>
@@ -270,7 +281,7 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-none bg-card">
+                <Card className="border-0 shadow-none bg-transparent text-white">
                   <CardContent className="p-4 sm:p-5">
                     <div className="mx-auto grid max-w-2xl gap-3 sm:grid-cols-2">
                       <StatusCard
@@ -291,12 +302,13 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                <div className="text-center bg-card rounded-xl p-5 w-full text-muted-foreground">
+                <div className="w-full p-5 text-center text-white/75">
                   <p className="text-sm font-medium" data-testid="text-help-footer">
                     Contact NHS officers for questions about your hours
                   </p>
                 </div>
-              </>
+                </div>
+              </section>
             )}
           </div>
         )}
@@ -332,15 +344,15 @@ function StatusCard({
   incompleteText: string;
 }) {
   return (
-    <Card className="border-0 shadow-none">
+    <Card className="border-0 bg-white/10 text-white shadow-none">
       <CardContent className="p-4 flex items-center gap-3">
-        <div className={cn("rounded-full p-2", complete ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive")}>
+        <div className="rounded-full bg-white/15 p-2 text-white">
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="font-semibold text-foreground flex items-center gap-1.5">
-            {complete ? <CheckCircle2 className="w-4 h-4 text-primary" /> : <XCircle className="w-4 h-4 text-destructive" />}
+          <p className="text-sm text-white/75">{label}</p>
+          <p className="font-semibold text-white flex items-center gap-1.5">
+            {complete ? <CheckCircle2 className="w-4 h-4 text-white" /> : <XCircle className="w-4 h-4 text-white" />}
             {complete ? completeText : incompleteText}
           </p>
         </div>
@@ -368,13 +380,10 @@ function ProgressCard({
     <Card className="border-0 shadow-none">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="text-2xl font-display font-bold text-foreground">
-              {formatHours(hours)} / {formatHours(goal)}
-            </p>
-          </div>
-          <Clock className="w-5 h-5 text-primary" />
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="text-2xl font-display font-bold text-foreground">
+            {formatHours(hours)} / {formatHours(goal)}
+          </p>
         </div>
         <div className="h-2 rounded-full bg-muted overflow-hidden mt-3">
           <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
@@ -394,9 +403,9 @@ function ProgressCard({
 
 function MonthDetail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-card p-3">
-      <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
-      <p className="mt-1 text-xl font-display font-bold text-foreground">{value}</p>
+    <div className="rounded-xl bg-white/10 p-3">
+      <p className="text-xs uppercase tracking-[0.14em] text-white/75">{label}</p>
+      <p className="mt-1 text-xl font-display font-bold text-white">{value}</p>
     </div>
   );
 }
