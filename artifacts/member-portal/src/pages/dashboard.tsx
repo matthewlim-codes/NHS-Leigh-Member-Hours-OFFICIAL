@@ -154,7 +154,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="flex-1 w-full">
+      <main className="flex w-full flex-1 flex-col">
         {isDashboardError ? (
           <Alert variant="destructive" className="max-w-md w-full mx-auto my-6" data-testid="alert-dashboard-error">
             <AlertCircle className="h-4 w-4" />
@@ -164,7 +164,7 @@ export default function DashboardPage() {
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="flex w-full flex-1 flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div ref={whiteSectionRef} className="sticky z-0 bg-background" style={{ top: freezeTop }}>
               <div className="mx-auto max-w-5xl space-y-5 px-4 py-6 md:py-10">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -242,8 +242,8 @@ export default function DashboardPage() {
             </div>
 
             {dashboard && (
-              <section ref={blueSectionRef} className="monthly-activity-section relative z-[1] flex min-h-[calc(100dvh-4rem)] flex-col bg-primary pb-4 pt-16 text-white md:pt-24">
-                <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4">
+              <section ref={blueSectionRef} className="monthly-activity-section relative z-[1] flex-1 bg-primary pb-4 pt-16 text-white md:pt-24">
+                <div className="mx-auto w-full max-w-5xl px-4">
                 <Card className="border-0 shadow-none bg-transparent text-white">
                   <CardHeader className="pb-3 text-center">
                     <CardTitle className="whitespace-nowrap font-display text-[clamp(1.5rem,7.2vw,3rem)] font-bold leading-tight text-white md:text-5xl">Monthly Activity</CardTitle>
@@ -296,7 +296,7 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                <div className="mt-auto pt-8">
+                <div className="mt-6">
                   <Card className="mx-auto max-w-2xl border-0 bg-white/10 text-white shadow-none">
                     <CardContent className="grid grid-cols-2 divide-x divide-white/20 p-2 sm:p-4">
                       <StatusCard
