@@ -89,6 +89,7 @@ export default function DashboardPage() {
   const monthProgress = dashboard?.monthlyHours?.length
     ? (Math.max(0, selectedMonthIndex) / Math.max(1, dashboard.monthlyHours.length - 1)) * 100
     : 0;
+  const sliderPosition = `calc(${monthProgress}% + ${22 - (44 * monthProgress) / 100}px)`;
 
   const annualProgress = dashboard ? getProgressPercent(dashboard.totalHours, dashboard.annualGoal) : 0;
   const isGrade10 = dashboard?.grade === 10;
@@ -105,7 +106,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background">
-      <header className="bg-card border-b border-border sticky top-0 z-10">
+      <header className="bg-card sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <h1 className="font-bold text-lg text-foreground">
             Leigh NHS
@@ -156,7 +157,7 @@ export default function DashboardPage() {
 
             {dashboard && (
               <>
-                <Card className="shadow-lg border-primary/20 bg-card overflow-hidden">
+                <Card className="shadow-lg border-0 bg-card overflow-hidden">
                   <CardContent className="p-6 md:p-8">
                     <div className="flex items-center justify-between gap-4 mb-3">
                       <div>
@@ -205,14 +206,21 @@ export default function DashboardPage() {
                   </section>
                 )}
 
-                <Card className="shadow-lg border-card-border bg-card">
+                <Card className="border-0 shadow-none bg-card">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-xl font-display">Monthly Activity</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {dashboard.monthlyHours?.length > 0 && (
-                      <div>
+                      <div className="relative pt-[72px]">
                         <label htmlFor="month-slider" className="sr-only">Select activity month</label>
+                        <div
+                          aria-hidden="true"
+                          className="absolute top-0 z-10 flex h-11 min-w-16 -translate-x-1/2 items-center justify-center rounded-xl bg-[#232329] px-3 text-base font-bold text-white after:absolute after:-bottom-2 after:left-1/2 after:h-4 after:w-4 after:-translate-x-1/2 after:rotate-45 after:rounded-sm after:bg-[#232329]"
+                          style={{ left: sliderPosition }}
+                        >
+                          <span className="relative z-10">{selectedMonthData?.shortLabel}</span>
+                        </div>
                         <input
                           id="month-slider"
                           className="month-slider"
@@ -222,7 +230,7 @@ export default function DashboardPage() {
                           step={1}
                           value={Math.max(0, selectedMonthIndex)}
                           style={{
-                            background: `linear-gradient(to right, hsl(var(--primary)) ${monthProgress}%, hsl(var(--muted)) ${monthProgress}%)`,
+                            background: `linear-gradient(to right, #4299f7 ${sliderPosition}, #e9e9ed ${sliderPosition})`,
                           }}
                           aria-valuetext={selectedMonthData?.month}
                           onChange={(event) => {
@@ -233,7 +241,7 @@ export default function DashboardPage() {
                             }
                           }}
                         />
-                        <div className="flex justify-between text-xs font-medium text-muted-foreground">
+                        <div className="mt-5 flex justify-between text-xs font-medium text-muted-foreground">
                           <span>{dashboard.monthlyHours[0].shortLabel}</span>
                           <span>{dashboard.monthlyHours[dashboard.monthlyHours.length - 1].shortLabel}</span>
                         </div>
@@ -241,7 +249,7 @@ export default function DashboardPage() {
                     )}
 
                     {selectedMonthData && (
-                      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="rounded-2xl bg-primary/5 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
                         <div className="flex items-center justify-between gap-3">
                           <div>
                             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
@@ -251,22 +259,21 @@ export default function DashboardPage() {
                               {selectedMonthData.month}
                             </h3>
                           </div>
-                          <div className="rounded-full bg-card px-4 py-2 text-sm font-bold text-primary border border-primary/20">
+                          <div className="rounded-full bg-card px-4 py-2 text-sm font-bold text-primary">
                             {formatHours(selectedMonthData.total)} total
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+                        <div className="grid grid-cols-2 gap-3 mt-4">
                           <MonthDetail label="HW Center" value={selectedMonthData.hwCenter} />
                           <MonthDetail label="Tutorial" value={selectedMonthData.tutorial} />
-                          <MonthDetail label="Total" value={formatHours(selectedMonthData.total)} />
                         </div>
                       </div>
                     )}
                   </CardContent>
                 </Card>
 
-                <Card className="border-card-border bg-card">
+                <Card className="border-0 shadow-none bg-card">
                   <CardContent className="p-4 sm:p-5">
                     <div className="mx-auto grid max-w-2xl gap-3 sm:grid-cols-2">
                       <StatusCard
@@ -287,7 +294,7 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                <div className="text-center bg-card rounded-xl p-5 w-full text-muted-foreground border border-card-border">
+                <div className="text-center bg-card rounded-xl p-5 w-full text-muted-foreground">
                   <p className="text-sm font-medium" data-testid="text-help-footer">
                     Contact NHS officers for questions about your hours
                   </p>
@@ -328,7 +335,7 @@ function StatusCard({
   incompleteText: string;
 }) {
   return (
-    <Card className="border-card-border">
+    <Card className="border-0 shadow-none">
       <CardContent className="p-4 flex items-center gap-3">
         <div className={cn("rounded-full p-2", complete ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive")}>
           {icon}
@@ -361,7 +368,7 @@ function ProgressCard({
   const progress = getProgressPercent(hours, goal);
 
   return (
-    <Card className="border-card-border">
+    <Card className="border-0 shadow-none">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -379,7 +386,7 @@ function ProgressCard({
           {remaining === 0 ? "Requirement met" : `${formatHours(remaining)} hours remaining`}
         </p>
         {note && (
-          <p className="mt-3 border-t border-border pt-3 text-xs leading-relaxed text-muted-foreground">
+          <p className="mt-3 pt-2 text-xs leading-relaxed text-muted-foreground">
             {note}
           </p>
         )}
@@ -390,7 +397,7 @@ function ProgressCard({
 
 function MonthDetail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-card border border-card-border p-3">
+    <div className="rounded-xl bg-card p-3">
       <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
       <p className="mt-1 text-xl font-display font-bold text-foreground">{value}</p>
     </div>
