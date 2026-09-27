@@ -228,6 +228,14 @@
 }
 
 @layer utilities {
+  .monthly-activity-section {
+    border-radius: 50% 50% 0 0 / 96px 96px 0 0;
+  }
+  @media (min-width: 768px) {
+    .monthly-activity-section {
+      border-radius: 50% 50% 0 0 / 144px 144px 0 0;
+    }
+  }
   .month-slider {
     appearance: none;
     display: block;

@@ -211,11 +211,11 @@ export default function DashboardPage() {
             </div>
 
             {dashboard && (
-              <section className="min-h-[calc(100dvh-4rem)] rounded-t-[48px] bg-primary pt-10 pb-12 text-white sm:rounded-t-[88px] md:pt-14">
+              <section className="monthly-activity-section min-h-[calc(100dvh-4rem)] bg-primary pb-12 pt-28 text-white md:pt-40">
                 <div className="mx-auto max-w-5xl space-y-5 px-4">
                 <Card className="border-0 shadow-none bg-transparent text-white">
                   <CardHeader className="pb-3 text-center">
-                    <CardTitle className="text-xl font-display text-white">Monthly Activity</CardTitle>
+                    <CardTitle className="text-4xl font-display font-bold text-white md:text-5xl">Monthly Activity</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {dashboard.monthlyHours?.length > 0 && (
@@ -277,24 +277,22 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-none bg-transparent text-white">
-                  <CardContent className="p-4 sm:p-5">
-                    <div className="mx-auto grid max-w-2xl gap-3 sm:grid-cols-2">
-                      <StatusCard
-                        icon={<ClipboardList className="w-5 h-5" />}
-                        label="Info Form"
-                        complete={dashboard.infoFormComplete}
-                        completeText="Complete"
-                        incompleteText="Missing"
-                      />
-                      <StatusCard
-                        icon={<CircleDollarSign className="w-5 h-5" />}
-                        label="Club Dues"
-                        complete={dashboard.clubDuesPaid}
-                        completeText="Paid"
-                        incompleteText="Unpaid"
-                      />
-                    </div>
+                <Card className="mx-auto max-w-2xl border-0 bg-white/10 text-white shadow-none">
+                  <CardContent className="grid grid-cols-2 divide-x divide-white/20 p-3 sm:p-4">
+                    <StatusCard
+                      icon={<ClipboardList className="w-5 h-5" />}
+                      label="Info Form"
+                      complete={dashboard.infoFormComplete}
+                      completeText="Complete"
+                      incompleteText="Missing"
+                    />
+                    <StatusCard
+                      icon={<CircleDollarSign className="w-5 h-5" />}
+                      label="Club Dues"
+                      complete={dashboard.clubDuesPaid}
+                      completeText="Paid"
+                      incompleteText="Unpaid"
+                    />
                   </CardContent>
                 </Card>
 
@@ -340,20 +338,18 @@ function StatusCard({
   incompleteText: string;
 }) {
   return (
-    <Card className="border-0 bg-white/10 text-white shadow-none">
-      <CardContent className="p-4 flex items-center gap-3">
-        <div className="rounded-full bg-white/15 p-2 text-white">
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm text-white/75">{label}</p>
-          <p className="font-semibold text-white flex items-center gap-1.5">
-            {complete ? <CheckCircle2 className="w-4 h-4 text-white" /> : <XCircle className="w-4 h-4 text-white" />}
-            {complete ? completeText : incompleteText}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex min-w-0 flex-col items-start gap-2 px-3 py-2 sm:flex-row sm:items-center sm:gap-3 sm:px-4">
+      <div className="rounded-full bg-white/15 p-2 text-white">
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm text-white/75">{label}</p>
+        <p className="font-semibold text-white flex items-center gap-1.5">
+          {complete ? <CheckCircle2 className="w-4 h-4 text-white" /> : <XCircle className="w-4 h-4 text-white" />}
+          {complete ? completeText : incompleteText}
+        </p>
+      </div>
+    </div>
   );
 }
 
