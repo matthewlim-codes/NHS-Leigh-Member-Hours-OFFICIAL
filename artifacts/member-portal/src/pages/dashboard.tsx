@@ -423,6 +423,7 @@ export default function DashboardPage() {
         <LifetimeHoursPanel
           open={isLifetimeOpen}
           onClose={() => setLocation("/dashboard")}
+          currentGrade={dashboard.grade}
           eligibleForPreviousYear={dashboard.grade === 12}
           dragDistance={dragDistance}
         />

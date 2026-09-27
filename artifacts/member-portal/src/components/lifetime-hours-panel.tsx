@@ -6,6 +6,7 @@ type LifetimeHoursPanelProps = {
   open: boolean;
   onClose: () => void;
   dragDistance?: number;
+  currentGrade: number;
   /** Pass dashboard.grade === 12; omitted/false never assumes prior-year eligibility. */
   eligibleForPreviousYear?: boolean;
 };
@@ -25,6 +26,7 @@ export default function LifetimeHoursPanel({
   open,
   onClose,
   dragDistance = 0,
+  currentGrade,
   eligibleForPreviousYear = false,
 }: LifetimeHoursPanelProps) {
   const panelRef = useRef<HTMLElement>(null);
@@ -176,8 +178,11 @@ export default function LifetimeHoursPanel({
               </div>
             ) : data ? (
               <>
-                <h1 className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-white/70 sm:text-base">
-                  Lifetime hours
+                <h1 className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 font-display text-sm font-semibold uppercase tracking-[0.22em] text-white/70 sm:text-base">
+                  <span>Lifetime hours</span>
+                  <span className="text-xs font-medium normal-case tracking-normal sm:text-sm">
+                    ({data.hasPreviousYear ? "Jnr + Snr year" : currentGrade === 12 ? "Snr year only" : currentGrade === 11 ? "Jnr year" : "Current year"})
+                  </span>
                 </h1>
                 <p
                   className="mt-4 max-w-full font-display text-[clamp(4.5rem,15vw,10rem)] font-bold leading-none tracking-tight tabular-nums"
