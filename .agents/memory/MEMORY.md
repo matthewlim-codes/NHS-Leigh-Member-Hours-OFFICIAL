@@ -1,1 +1,2 @@
 - [Tailwind translate gestures](tailwind-translate-gestures.md) — Tailwind translate utilities and inline transform accumulate; drag positions should override the CSS translate property.
+- [Member hour goals](member-hour-goals.md) — annual 19-hour goals and original 11-hour Semester 2 progress both matter for grades 11–12.

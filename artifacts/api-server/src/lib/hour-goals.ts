@@ -7,7 +7,7 @@ export function getSemester1Goal(grade: number): number {
 }
 
 export function getSemester2Goal(grade: number): number {
-  return grade === 10 ? 11 : 0;
+  return grade === 10 || grade === 11 || grade === 12 ? 11 : 0;
 }
 
 export function getRemaining(hours: number, goal: number): number {

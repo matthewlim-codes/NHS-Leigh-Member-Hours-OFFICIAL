@@ -294,6 +294,7 @@ export default function DashboardPage() {
                       hours={dashboard.semester2Hours}
                       goal={dashboard.semester2Goal}
                       remaining={dashboard.semester2Remaining}
+                      note={dashboard.grade === 11 ? "Semester 2 requirement covers January–May." : undefined}
                     />
                   </section>
                 )}
