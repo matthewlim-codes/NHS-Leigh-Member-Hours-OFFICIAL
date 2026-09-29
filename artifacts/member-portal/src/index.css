@@ -228,6 +228,17 @@
 }
 
 @layer utilities {
+  @keyframes lifetime-arrow-bounce {
+    0%, 52%, 100% { transform: translateX(0); }
+    14% { transform: translateX(-8px); }
+    28% { transform: translateX(2px); }
+    40% { transform: translateX(-3px); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .lifetime-arrow-hint {
+      animation: lifetime-arrow-bounce 1.5s ease-in-out 4;
+    }
+  }
   .monthly-activity-section {
     border-radius: 50% 50% 0 0 / 96px 96px 0 0;
   }

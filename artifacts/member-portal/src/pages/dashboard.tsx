@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const arrowDrag = useRef<{ pointerId: number; x: number; y: number; distance: number; active: boolean } | null>(null);
   const suppressArrowClick = useRef(false);
   const [dragDistance, setDragDistance] = useState(0);
+  const [arrowHintDismissed, setArrowHintDismissed] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("October");
   const [stickyContentHeight, setStickyContentHeight] = useState(0);
   const whiteSectionRef = useRef<HTMLDivElement>(null);
@@ -101,6 +102,7 @@ export default function DashboardPage() {
 
   const handleArrowPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0 || isLifetimeOpen) return;
+    setArrowHintDismissed(true);
     arrowDrag.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, distance: 0, active: false };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -393,6 +395,7 @@ export default function DashboardPage() {
         <button
           type="button"
           onClick={() => {
+            setArrowHintDismissed(true);
             if (suppressArrowClick.current) {
               suppressArrowClick.current = false;
               return;
@@ -416,7 +419,9 @@ export default function DashboardPage() {
           title="View lifetime hours"
           data-testid="button-lifetime-hours"
         >
-          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+          <span className={cn("inline-flex", !arrowHintDismissed && "lifetime-arrow-hint")}>
+            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+          </span>
         </button>
         <LifetimeHoursPanel
           open={isLifetimeOpen}
