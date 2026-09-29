@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const suppressArrowClick = useRef(false);
   const [dragDistance, setDragDistance] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState("October");
-  const [freezeTop, setFreezeTop] = useState(64);
+  const [stickyContentHeight, setStickyContentHeight] = useState(0);
   const whiteSectionRef = useRef<HTMLDivElement>(null);
   const blueSectionRef = useRef<HTMLElement>(null);
   const sliderRegionRef = useRef<HTMLDivElement>(null);
@@ -154,23 +154,19 @@ export default function DashboardPage() {
     const sliderRegion = sliderRegionRef.current;
     if (!whiteSection || !blueSection || !sliderRegion) return;
 
-    const updateFreezePoint = () => {
+    const updateStickyContentHeight = () => {
       const sliderBottomWithinBlue =
         sliderRegion.getBoundingClientRect().bottom - blueSection.getBoundingClientRect().top;
+      // CSS uses 100svh so Safari's changing browser chrome can't move the sticky top mid-scroll.
       // Pin the white section only after the whole heading and slider reach the viewport.
-      setFreezeTop(Math.min(64, window.innerHeight - whiteSection.getBoundingClientRect().height - sliderBottomWithinBlue));
+      setStickyContentHeight(Math.round(whiteSection.getBoundingClientRect().height + sliderBottomWithinBlue));
     };
 
-    updateFreezePoint();
-    const observer = new ResizeObserver(updateFreezePoint);
+    updateStickyContentHeight();
+    const observer = new ResizeObserver(updateStickyContentHeight);
     observer.observe(whiteSection);
-    observer.observe(blueSection);
     observer.observe(sliderRegion);
-    window.addEventListener("resize", updateFreezePoint);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateFreezePoint);
-    };
+    return () => observer.disconnect();
   }, [dashboard]);
 
   const selectedMonthData = useMemo(() => {
@@ -234,7 +230,11 @@ export default function DashboardPage() {
           </Alert>
         ) : (
           <div className="flex w-full flex-1 flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div ref={whiteSectionRef} className="sticky z-0 bg-background" style={{ top: freezeTop }}>
+            <div
+              ref={whiteSectionRef}
+              className="sticky top-16 z-0 bg-background"
+              style={{ top: `min(4rem, calc(100svh - ${stickyContentHeight}px))` }}
+            >
               <div className="mx-auto max-w-5xl space-y-5 px-4 py-6 md:py-10">
             <div>
               <div className="flex items-center justify-between gap-4">
