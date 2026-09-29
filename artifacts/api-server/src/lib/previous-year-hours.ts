@@ -2,13 +2,14 @@ import { ReplitConnectors } from "@replit/connectors-sdk";
 import { parseActivityHours, type ActivityHours } from "./activity-hours";
 
 const PREVIOUS_YEAR_SPREADSHEET_ID = "1NAfPUYygYC_AuIVHrguiGO_7sixenv3P2JREIawRKrk";
-const PREVIOUS_YEAR_TAB = "11/12";
+const PREVIOUS_YEAR_TABS = { 10: "10", 11: "11/12" } as const;
 
 type SheetValues = { values?: string[][] };
 
 export function findPreviousYearHours(
   rows: string[][],
   studentId: string,
+  previousGrade: 10 | 11,
 ): { hours: number; found: boolean } & ActivityHours {
   const headers = rows.slice(0, 5);
   const idHeader = findHeader(headers, "student id");
@@ -34,7 +35,7 @@ export function findPreviousYearHours(
   }
 
   const matches = rows.slice(dataStart).filter((row) =>
-    row[idHeader.column]?.trim() === studentId && Number.parseInt(row[gradeHeader.column] ?? "", 10) === 11
+    row[idHeader.column]?.trim() === studentId && Number(row[gradeHeader.column]?.trim()) === previousGrade
   );
 
   if (matches.length > 1) {
@@ -56,9 +57,10 @@ export function findPreviousYearHours(
   return { hours, found: true, ...activity };
 }
 
-export async function getPreviousYearHours(studentId: string): Promise<{ hours: number; found: boolean } & ActivityHours> {
+export async function getPreviousYearHours(studentId: string, previousGrade: 10 | 11): Promise<{ hours: number; found: boolean } & ActivityHours> {
   const connectors = new ReplitConnectors();
-  const range = encodeURIComponent(`'${PREVIOUS_YEAR_TAB}'!A:X`);
+  const tab = PREVIOUS_YEAR_TABS[previousGrade];
+  const range = encodeURIComponent(`'${tab}'!${previousGrade === 10 ? "A:K" : "A:X"}`);
   const response = await connectors.proxy(
     "google-sheet",
     `/v4/spreadsheets/${PREVIOUS_YEAR_SPREADSHEET_ID}/values/${range}`,
@@ -70,7 +72,7 @@ export async function getPreviousYearHours(studentId: string): Promise<{ hours: 
   }
 
   const data = await response.json() as SheetValues;
-  return findPreviousYearHours(data.values ?? [], studentId);
+  return findPreviousYearHours(data.values ?? [], studentId, previousGrade);
 }
 
 function findHeader(rows: string[][], name: string): { row: number; column: number } | null {

@@ -7,7 +7,7 @@ type LifetimeHoursPanelProps = {
   onClose: () => void;
   dragDistance?: number;
   currentGrade: number;
-  /** Pass dashboard.grade === 12; omitted/false never assumes prior-year eligibility. */
+  /** Pass true for returning 11th and 12th graders who may have a previous-year record. */
   eligibleForPreviousYear?: boolean;
 };
 
@@ -181,7 +181,9 @@ export default function LifetimeHoursPanel({
                 <h1 className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 font-display text-sm font-semibold uppercase tracking-[0.22em] text-white/70 sm:text-base">
                   <span>Lifetime hours</span>
                   <span className="text-xs font-medium normal-case tracking-normal sm:text-sm">
-                    ({data.hasPreviousYear ? "Jnr + Snr year" : currentGrade === 12 ? "Snr year only" : currentGrade === 11 ? "Jnr year" : "Current year"})
+                    ({data.hasPreviousYear
+                      ? currentGrade === 12 ? "Jnr + Snr year" : "Grade 10 + Jnr year"
+                      : currentGrade === 12 ? "Snr year only" : currentGrade === 11 ? "Jnr year only" : "Current year"})
                   </span>
                 </h1>
                 <p

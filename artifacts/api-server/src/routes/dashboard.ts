@@ -5,13 +5,9 @@ import { GetDashboardResponse, GetLifetimeHoursResponse } from "@workspace/api-z
 import { getMemberFromSheet } from "../lib/sheets";
 import { getPreviousYearHours } from "../lib/previous-year-hours";
 import { countActivities, sumActivityHours } from "../lib/activity-hours";
+import { getAnnualGoal, getSemester1Goal, getSemester2Goal, getRemaining } from "../lib/hour-goals";
 
 const router: IRouter = Router();
-
-const GRADE_10_ANNUAL_GOAL = 7;
-const SENIOR_SEMESTER_1_GOAL = 8;
-const UPPER_GRADE_SEMESTER_2_GOAL = 11;
-const JUNIOR_MONTHS = new Set(["January", "February", "March", "April", "May"]);
 
 router.get("/dashboard", async (req, res): Promise<void> => {
   if (!req.session.userId) {
@@ -50,10 +46,7 @@ router.get("/dashboard", async (req, res): Promise<void> => {
     semester2Hours: sheetMember.semester2Hours,
     semester2Goal: getSemester2Goal(sheetMember.grade),
     semester2Remaining: getRemaining(sheetMember.semester2Hours, getSemester2Goal(sheetMember.grade)),
-    monthlyHours:
-      sheetMember.grade === 11
-        ? sheetMember.monthlyHours.filter((month) => JUNIOR_MONTHS.has(month.month))
-        : sheetMember.monthlyHours,
+    monthlyHours: sheetMember.monthlyHours,
   }));
 });
 
@@ -75,9 +68,9 @@ router.get("/dashboard/lifetime-hours", async (req, res): Promise<void> => {
     return;
   }
 
-  // Only returning seniors can have 11th-grade hours from the previous sheet.
-  const previous = currentMember.grade === 12
-    ? await getPreviousYearHours(currentMember.studentId)
+  // Match the prior grade by student ID, never by name or tab alone.
+  const previous = currentMember.grade === 11 || currentMember.grade === 12
+    ? await getPreviousYearHours(currentMember.studentId, currentMember.grade === 11 ? 10 : 11)
     : { hours: 0, found: false, hwCenterHours: 0, tutorialHours: 0 };
   const currentActivity = sumActivityHours(currentMember.monthlyHours);
   const activityCounts = countActivities(currentActivity, previous);
@@ -106,26 +99,5 @@ router.get("/dashboard/sheet-status", async (req, res): Promise<void> => {
 
   res.json({ updatedAt: latestUpdate?.updatedAt ?? null });
 });
-
-function getAnnualGoal(grade: number): number {
-  if (grade === 10) return GRADE_10_ANNUAL_GOAL;
-  return getSemester1Goal(grade) + getSemester2Goal(grade);
-}
-
-function getSemester1Goal(grade: number): number {
-  return grade === 12 ? SENIOR_SEMESTER_1_GOAL : 0;
-}
-
-function getSemester2Goal(grade: number): number {
-  return grade === 10 ? 0 : UPPER_GRADE_SEMESTER_2_GOAL;
-}
-
-function getRemaining(hours: number, goal: number): number {
-  return Math.max(0, roundHours(goal - hours));
-}
-
-function roundHours(hours: number): number {
-  return Math.round(hours * 10) / 10;
-}
 
 export default router;

@@ -257,10 +257,9 @@ export default function DashboardPage() {
               <>
                 <Card className="shadow-lg border-0 bg-card overflow-hidden">
                   <CardContent className="p-6 md:p-8">
-                    <div className="mb-3">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">Annual Hour Goal</p>
-                      </div>
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-foreground">Annual Hour Goal</p>
+                      <p className="text-sm font-semibold text-primary">{dashboard.annualGoal} hours required</p>
                     </div>
 
                     <div className="h-4 rounded-full bg-muted overflow-hidden">
@@ -277,8 +276,8 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                {!isGrade10 && (
-                  <section className={cn("grid gap-3", dashboard.grade === 12 && "md:grid-cols-2")}>
+                {(isGrade10 || dashboard.grade === 12) && (
+                  <section className="grid gap-3">
                     {dashboard.grade === 12 && (
                       <ProgressCard
                         label="Semester 1"
@@ -288,13 +287,14 @@ export default function DashboardPage() {
                         note="Oct–Dec: 1 HW Center hour and 1 Tutorial hour each month, plus 2 hours from any activity."
                       />
                     )}
-                    <ProgressCard
-                      label="Semester 2"
-                      hours={dashboard.semester2Hours}
-                      goal={dashboard.semester2Goal}
-                      remaining={dashboard.semester2Remaining}
-                      note={dashboard.grade === 11 ? "Junior requirement covers January–May only." : undefined}
-                    />
+                    {isGrade10 && (
+                      <ProgressCard
+                        label="Semester 2"
+                        hours={dashboard.semester2Hours}
+                        goal={dashboard.semester2Goal}
+                        remaining={dashboard.semester2Remaining}
+                      />
+                    )}
                   </section>
                 )}
               </>
@@ -424,7 +424,7 @@ export default function DashboardPage() {
           open={isLifetimeOpen}
           onClose={() => setLocation("/dashboard")}
           currentGrade={dashboard.grade}
-          eligibleForPreviousYear={dashboard.grade === 12}
+          eligibleForPreviousYear={dashboard.grade === 11 || dashboard.grade === 12}
           dragDistance={dragDistance}
         />
       </>
