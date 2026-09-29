@@ -276,25 +276,25 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                {(isGrade10 || dashboard.grade === 12) && (
-                  <section className="grid gap-3">
-                    {dashboard.grade === 12 && (
+                {(isGrade10 || dashboard.grade === 11 || dashboard.grade === 12) && (
+                  <section className={cn("grid gap-3", !isGrade10 && "md:grid-cols-2")}>
+                    {!isGrade10 && (
                       <ProgressCard
                         label="Semester 1"
                         hours={dashboard.semester1Hours}
                         goal={dashboard.semester1Goal}
                         remaining={dashboard.semester1Remaining}
-                        note="Oct–Dec: 1 HW Center hour and 1 Tutorial hour each month, plus 2 hours from any activity."
+                        note={dashboard.grade === 12
+                          ? "Oct–Dec: 1 HW Center hour and 1 Tutorial hour each month, plus 2 hours from any activity."
+                          : undefined}
                       />
                     )}
-                    {isGrade10 && (
-                      <ProgressCard
-                        label="Semester 2"
-                        hours={dashboard.semester2Hours}
-                        goal={dashboard.semester2Goal}
-                        remaining={dashboard.semester2Remaining}
-                      />
-                    )}
+                    <ProgressCard
+                      label="Semester 2"
+                      hours={dashboard.semester2Hours}
+                      goal={dashboard.semester2Goal}
+                      remaining={dashboard.semester2Remaining}
+                    />
                   </section>
                 )}
               </>
@@ -488,7 +488,8 @@ function ProgressCard({
   remaining: number;
   note?: string;
 }) {
-  const progress = getProgressPercent(hours, goal);
+  const hasSemesterGoal = goal > 0;
+  const progress = hasSemesterGoal ? getProgressPercent(hours, goal) : 0;
 
   return (
     <Card className="border-0 shadow-none">
@@ -496,14 +497,18 @@ function ProgressCard({
         <div className="flex items-start justify-between gap-3">
           <p className="text-sm text-muted-foreground">{label}</p>
           <p className="text-2xl font-display font-bold text-foreground">
-            {formatHours(hours)} / {formatHours(goal)}
+            {formatHours(hours)}{hasSemesterGoal ? ` / ${formatHours(goal)}` : " hours"}
           </p>
         </div>
-        <div className="h-2 rounded-full bg-muted overflow-hidden mt-3">
-          <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
-        </div>
+        {hasSemesterGoal && (
+          <div className="h-2 rounded-full bg-muted overflow-hidden mt-3">
+            <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+          </div>
+        )}
         <p className="text-xs text-muted-foreground mt-2">
-          {remaining === 0 ? "Requirement met" : `${formatHours(remaining)} hours remaining`}
+          {hasSemesterGoal
+            ? remaining === 0 ? "Requirement met" : `${formatHours(remaining)} hours remaining`
+            : "Recorded this semester"}
         </p>
         {note && (
           <p className="mt-3 pt-2 text-xs leading-relaxed text-muted-foreground">
