@@ -181,9 +181,10 @@ export default function LifetimeHoursPanel({
                 <h1 className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 font-display text-sm font-semibold uppercase tracking-[0.22em] text-white/70 sm:text-base">
                   <span>Lifetime hours</span>
                   <span className="text-xs font-medium normal-case tracking-normal sm:text-sm">
-                    ({data.hasPreviousYear
-                      ? currentGrade === 12 ? "Jnr + Snr year" : "Grade 10 + Jnr year"
-                      : currentGrade === 12 ? "Snr year only" : currentGrade === 11 ? "Jnr year only" : "Current year"})
+                    ({currentGrade === 11
+                      ? "Soph + Jnr year"
+                      : data.hasPreviousYear && currentGrade === 12 ? "Jnr + Snr year"
+                      : currentGrade === 12 ? "Snr year only" : "Current year"})
                   </span>
                 </h1>
                 <p
@@ -212,7 +213,7 @@ export default function LifetimeHoursPanel({
                 </div>
                 {eligibleForPreviousYear && !data.hasPreviousYear && (
                   <p className="mt-8 max-w-sm text-xs leading-relaxed text-white/70" data-testid="status-previous-year-unmatched">
-                    No previous-year record found. These may not be all your lifetime hours; ask an NHS officer to check.
+                    No previous-year record found. The total above includes only this year’s hours; ask an NHS officer to check.
                   </p>
                 )}
               </>

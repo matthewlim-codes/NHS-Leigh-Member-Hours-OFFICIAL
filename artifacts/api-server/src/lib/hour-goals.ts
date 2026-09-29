@@ -3,7 +3,7 @@ export function getAnnualGoal(grade: number): number {
 }
 
 export function getSemester1Goal(grade: number): number {
-  return grade === 12 ? 8 : 0;
+  return grade === 11 || grade === 12 ? 8 : 0;
 }
 
 export function getSemester2Goal(grade: number): number {

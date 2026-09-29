@@ -284,9 +284,7 @@ export default function DashboardPage() {
                         hours={dashboard.semester1Hours}
                         goal={dashboard.semester1Goal}
                         remaining={dashboard.semester1Remaining}
-                        note={dashboard.grade === 12
-                          ? "Oct–Dec: 1 HW Center hour and 1 Tutorial hour each month, plus 2 hours from any activity."
-                          : undefined}
+                        note="Oct–Dec: 1 HW Center hour and 1 Tutorial hour each month, plus 2 hours from any activity."
                       />
                     )}
                     <ProgressCard
@@ -294,7 +292,6 @@ export default function DashboardPage() {
                       hours={dashboard.semester2Hours}
                       goal={dashboard.semester2Goal}
                       remaining={dashboard.semester2Remaining}
-                      note={dashboard.grade === 11 ? "Semester 2 requirement covers January–May." : undefined}
                     />
                   </section>
                 )}
@@ -489,8 +486,7 @@ function ProgressCard({
   remaining: number;
   note?: string;
 }) {
-  const hasSemesterGoal = goal > 0;
-  const progress = hasSemesterGoal ? getProgressPercent(hours, goal) : 0;
+  const progress = getProgressPercent(hours, goal);
 
   return (
     <Card className="border-0 shadow-none">
@@ -498,18 +494,14 @@ function ProgressCard({
         <div className="flex items-start justify-between gap-3">
           <p className="text-sm text-muted-foreground">{label}</p>
           <p className="text-2xl font-display font-bold text-foreground">
-            {formatHours(hours)}{hasSemesterGoal ? ` / ${formatHours(goal)}` : " hours"}
+            {formatHours(hours)} / {formatHours(goal)}
           </p>
         </div>
-        {hasSemesterGoal && (
-          <div className="h-2 rounded-full bg-muted overflow-hidden mt-3">
-            <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
-          </div>
-        )}
+        <div className="h-2 rounded-full bg-muted overflow-hidden mt-3">
+          <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+        </div>
         <p className="text-xs text-muted-foreground mt-2">
-          {hasSemesterGoal
-            ? remaining === 0 ? "Requirement met" : `${formatHours(remaining)} hours remaining`
-            : "Recorded this semester"}
+          {remaining === 0 ? "Requirement met" : `${formatHours(remaining)} hours remaining`}
         </p>
         {note && (
           <p className="mt-3 pt-2 text-xs leading-relaxed text-muted-foreground">
