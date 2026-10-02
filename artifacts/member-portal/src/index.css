@@ -222,6 +222,12 @@
     @apply font-sans antialiased bg-background text-foreground selection:bg-primary/20 selection:text-primary;
   }
 
+  /* Match the page canvas revealed by bottom-edge rubber-band scrolling. */
+  html:has(.member-dashboard),
+  html:has(.member-dashboard) body {
+    background-color: hsl(var(--primary));
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }

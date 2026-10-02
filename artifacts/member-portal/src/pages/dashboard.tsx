@@ -196,7 +196,7 @@ export default function DashboardPage() {
   return (
     <>
     <div
-      className="min-h-[100dvh] flex flex-col overflow-x-clip bg-background"
+      className="member-dashboard min-h-[100dvh] flex flex-col overflow-x-clip bg-background"
       onTouchStart={handleDashboardTouchStart}
       onTouchEnd={handleDashboardTouchEnd}
       inert={isLifetimeOpen}
