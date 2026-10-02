@@ -76,7 +76,7 @@ export default function LoginPage() {
         </div>
 
         <Card className="shadow-lg border-muted/50">
-          <CardHeader>
+          <CardHeader className="text-center">
             <CardTitle>Welcome back!</CardTitle>
             <CardDescription>Your login is already created. Follow the instructions below.</CardDescription>
           </CardHeader>
