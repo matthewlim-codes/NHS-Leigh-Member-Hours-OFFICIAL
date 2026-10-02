@@ -78,7 +78,10 @@ export default function LoginPage() {
         <Card className="shadow-lg border-muted/50">
           <CardHeader className="text-center">
             <CardTitle>Welcome back!</CardTitle>
-            <CardDescription>Your login is already created. Follow the instructions below.</CardDescription>
+            <CardDescription>
+              <span className="block">Your login is already created.</span>
+              <span className="block">Follow the instructions below.</span>
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {loginMutation.isError && (
