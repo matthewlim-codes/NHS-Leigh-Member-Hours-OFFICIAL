@@ -73,15 +73,12 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground" data-testid="heading-login">
             Leigh NHS Member Portal
           </h1>
-          <p className="text-muted-foreground mt-2" data-testid="text-login-subtitle">
-            Sign in to access your volunteer dashboard
-          </p>
         </div>
 
         <Card className="shadow-lg border-muted/50">
           <CardHeader>
-            <CardTitle>Welcome back</CardTitle>
-            <CardDescription>Enter your details below to sign in.</CardDescription>
+            <CardTitle>Welcome back!</CardTitle>
+            <CardDescription>Your login is already created. Follow the instructions below.</CardDescription>
           </CardHeader>
           <CardContent>
             {loginMutation.isError && (
